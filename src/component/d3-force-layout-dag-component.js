@@ -210,50 +210,72 @@ export class D3ForceLayoutDragComponent {
                 .attr('height', 600)
                 .style('background', '#fff');
 
-        this.svg.append('defs')
-            .append('marker')
-                .attr('id', 'arrowhead')
-                .attr('viewBox', '-0 -5 10 10')
-                .attr('refX', 25)
-                .attr('refY', 0)
-                .attr('orient', 'auto')
-                .attr('markerWidth', 13)
-                .attr('markerHeight', 13)
-                .attr('xoverflow', 'visible')
-                .append('svg:path')
-                .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-                .attr('fill', '#999')
-                .style('stroke','none');
+        const defs = this.svg.append('defs');
+        defs.append('marker')
+            .attr('id', 'arrowhead')
+            .attr('viewBox', '-0 -5 10 10')
+            .attr('refX', 25)
+            .attr('refY', 0)
+            .attr('orient', 'auto')
+            .attr('markerWidth', 13)
+            .attr('markerHeight', 13)
+            .attr('xoverflow', 'visible')
+            .append('svg:path')
+            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+            .attr('fill', '#999')
+            .style('stroke','none');
 
-        this.svg.append('defs')
-            .append('marker')
-                .attr('id', 'arrowheadIn')
-                .attr('viewBox', '-0 -5 10 10')
-                .attr('refX', 25)
-                .attr('refY', 0)
-                .attr('orient', 'auto')
-                .attr('markerWidth', 6)
-                .attr('markerHeight', 6)
-                .attr('xoverflow', 'visible')
-                .append('svg:path')
-                .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-                .attr('fill', this.accountInOutData[0].color)
-                .style('stroke','none');
+        defs.append('marker')
+            .attr('id', 'arrowheadIn')
+            .attr('viewBox', '-0 -5 10 10')
+            .attr('refX', 25)
+            .attr('refY', 0)
+            .attr('orient', 'auto')
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
+            .attr('xoverflow', 'visible')
+            .append('svg:path')
+            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+            .attr('fill', this.accountInOutData[0].color)
+            .style('stroke','none');
 
-        this.svg.append('defs')
-            .append('marker')
-                .attr('id', 'arrowheadOut')
-                .attr('viewBox', '-0 -5 10 10')
-                .attr('refX', 25)
-                .attr('refY', 0)
-                .attr('orient', 'auto')
-                .attr('markerWidth', 6)
-                .attr('markerHeight', 6)
-                .attr('xoverflow', 'visible')
-                .append('svg:path')
-                .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-                .attr('fill', this.accountInOutData[1].color)
-                .style('stroke','none');
+        defs.append('marker')
+            .attr('id', 'arrowheadOut')
+            .attr('viewBox', '-0 -5 10 10')
+            .attr('refX', 25)
+            .attr('refY', 0)
+            .attr('orient', 'auto')
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
+            .attr('xoverflow', 'visible')
+            .append('svg:path')
+            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+            .attr('fill', this.accountInOutData[1].color)
+            .style('stroke','none');
+
+        const dropShadowFilter = defs.append('svg:filter')
+            .attr('id', 'dropshadow')
+            .attr('filterUnits', 'userSpaceOnUse')
+            .attr('width', '250%')
+            .attr('height', '250%');
+        dropShadowFilter.append('svg:feGaussianBlur')
+            .attr('in', 'SourceGraphic')
+            .attr('stdDeviation', 2)
+            .attr('result', 'blur-out');
+        dropShadowFilter.append('svg:feColorMatrix')
+            .attr('in', 'blur-out')
+            .attr('type', 'hueRotate')
+            .attr('values', 180)
+            .attr('result', 'color-out');
+        dropShadowFilter.append('svg:feOffset')
+            .attr('in', 'color-out')
+            .attr('dx', 3)
+            .attr('dy', 3)
+            .attr('result', 'the-shadow');
+        dropShadowFilter.append('svg:feBlend')
+            .attr('in', 'SourceGraphic')
+            .attr('in2', 'the-shadow')
+            .attr('mode', 'normal');
         
         // svg size check
         this.svgWidth = parseFloat(this.svg.style('width'));
@@ -457,6 +479,7 @@ export class D3ForceLayoutDragComponent {
             .enter()
             .append('g')
             .attr('class', 'node')
+            .attr('filter', 'url(#dropshadow)')
             .call(drag()
                     .on('start', (d) => {
                         this.simulation.alphaTarget(0.3).restart();
