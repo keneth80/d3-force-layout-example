@@ -377,9 +377,10 @@ export class D3ForceLayoutDragComponent {
     updateData(nodes, links) {
         this.zoomTarget.remove();
         this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
+        this.simulation.alphaTarget(0.3).restart();
+        this.update(nodes, links);
         setTimeout(() => {
-            this.simulation.alphaTarget(0.3).restart();
-            this.update(nodes, links);
+            this.svg.node().appendChild(this.legendGroup.node());
         }, 500);
         
     }
