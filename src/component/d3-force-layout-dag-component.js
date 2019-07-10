@@ -5,6 +5,8 @@ import { scaleOrdinal } from 'd3-scale';
 import { schemeCategory10 } from 'd3-scale-chromatic';
 import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force';
 import { payments } from './data/mock-data';
+import { fromEvent } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 export const excute = () => {
     const nodeData = payments;
@@ -69,18 +71,59 @@ export const excute = () => {
 
     const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData, linkData});
 
-    const formData = {};
-
-    select('#name').on('input', () => {
-        formData.name = event.target.value;
-        console.log('name', event.target.value);
-    });
-
     select('#search_btn').on('click', () => {
-        console.log('sumit', formData, document.search.name.value);
-        // d3ZoomDragExample.update({
-        //     x: 200, y:150, k: 1
-        // });
+        const target = payments.find((item) => item.name === document.search.name.value);
+        let tempPayments = payments.filter((item) => {
+            if (parseInt(item.transactionCount) >= parseInt(document.search.account_count.value)) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+
+        const tempFilterData = tempPayments.filter((item) => {
+            if (item.label === document.search.name.value) {
+                return false;
+            } else {
+                return true;
+            }
+        });
+
+        let tempLink = [];
+        if (document.search.type.value === '전체') {
+            for (let i = 0; i < tempFilterData.length; i++) {
+                tempLink.push({
+                    source: tempFilterData[i].id,
+                    target: target ? target.id : 1,
+                    type: '출금'
+                });
+            }
+    
+            for (let i = 5; i < tempFilterData.length; i++) {
+                tempLink.push({
+                    source: tempFilterData[i].id,
+                    target: target ? target.id : 1,
+                    type: '입금'
+                });
+            }
+        } else {
+            for (let i = 0; i < tempFilterData.length; i++) {
+                tempLink.push({
+                    source: tempFilterData[i].id,
+                    target: target ? target.id : 1,
+                    type: document.search.type.value
+                });
+            }
+        }
+
+        tempLink = tempLink.map((item) => {
+            if (document.search.type.value !== '전체') {
+                item.type = document.search.type.value;
+            }
+            return item;
+        })
+
+        d3ForceLayoutDragComponent.updateData(tempFilterData, tempLink);
     });
 };
 
@@ -252,6 +295,18 @@ export class D3ForceLayoutDragComponent {
             .attr('transform', (d) => {
                 return 'translate(' + (this.svgWidth - 200) + ', 0)';
             });
+
+        const resizeEvent = fromEvent(window, 'resize').pipe(debounceTime(500));
+        resizeEvent.subscribe(() => {
+            if (!this.svg) return;
+
+            this.svgWidth = parseInt(this.svg.style('width'));
+            this.svgHeight = parseInt(this.svg.style('height'));
+
+            this.legendGroup.attr('transform', (d) => {
+                return 'translate(' + (this.svgWidth - 200) + ', 0)';
+            });
+        });
     }
 
     draw() {
@@ -312,11 +367,21 @@ export class D3ForceLayoutDragComponent {
         transactionGroup.selectAll('.transaction-label').data(this.transactionCountData)
             .enter().append('text')
                 .attr('transform', (d, i) => {
-                    return `translate(40, ${i * 30 + ((i + 1) * 5) + 20})`;
+                    return `translate(40, ${i * 30 + ((i + 1) * 5) + 22})`;
                 })
                 .text((d) => {
                     return d.label;
                 });
+    }
+
+    updateData(nodes, links) {
+        this.zoomTarget.remove();
+        this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
+        setTimeout(() => {
+            this.simulation.alphaTarget(0.3).restart();
+            this.update(nodes, links);
+        }, 500);
+        
     }
 
     update(nodes, links) {
@@ -438,6 +503,14 @@ export class D3ForceLayoutDragComponent {
                 return 5;
             })
             .style('font-size', 'small')
+            .style('stroke', (d, i) => {
+                let color = '#000';
+                if (d.transactionCount > 2) {
+                    color = '#fff';
+                }
+                return color;
+                // return this.colors(i);
+            })
             .text((d) => {
                 return d.name;
                 // return d.name + ':' + d.label;

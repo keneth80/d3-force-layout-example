@@ -139,7 +139,7 @@ export const payments = [
         financialInstitution: '씨티은행',
         shopName: '인천',
         id: 5,
-        transactionCount: 1
+        transactionCount: 4
     },
     {
         name: '루피',
@@ -196,7 +196,7 @@ export const payments = [
         financialInstitution: '씨티은행',
         shopName: '시청점',
         id: 8,
-        transactionCount: 1
+        transactionCount: 2
     },
     {
         name: '오키부동산',
