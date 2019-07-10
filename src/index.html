@@ -4,6 +4,31 @@
         <title>Webpack 4</title>
     </head>
     <body>
+        <div>
+            <form name="search">
+                <label>거래자명</label>
+                <input type="text" name="name" id="name" style="width: 100px;">
+                <label>기간</label>
+                <input type="text" name="from_dt" id="from_dt" style="width: 70px;" value="2019-01-01" disabled>
+                ~
+                <input type="text" name="to_dt" id="to_dt" style="width: 70px;" value="2019-05-31" disabled>
+                <label>계좌번호</label>
+                <input type="text" name="account_number" id="account_number" style="width: 150px;">
+                <label>금액</label>
+                <input type="text" name="price" id="price" style="width: 150px;">
+                이상
+                <label>거래유형</label>
+                <select name="type" id="type">
+                    <option value="">전체</option>
+                    <option value="입금">입금</option>
+                    <option value="출금">출금</option>
+                </select>
+                <label>횟수</label>
+                <input type="text" name="account_count" id="account_count">
+                이상
+            </form>
+            <button id="search_btn">조회</button>
+        </div>
         <div id="result"></div>
     </body>
 </html>

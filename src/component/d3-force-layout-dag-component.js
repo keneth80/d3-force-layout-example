@@ -59,12 +59,25 @@ export const excute = () => {
             source: 11,
             target: 2,
             type: '출금'
+        },
+        {
+            source: 2,
+            target: 11,
+            type: '입금'
         }
     ];
 
     const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData, linkData});
 
-    select('#btn').on('click', () => {
+    const formData = {};
+
+    select('#name').on('input', () => {
+        formData.name = event.target.value;
+        console.log('name', event.target.value);
+    });
+
+    select('#search_btn').on('click', () => {
+        console.log('sumit', formData, document.search.name.value);
         // d3ZoomDragExample.update({
         //     x: 200, y:150, k: 1
         // });
@@ -120,7 +133,7 @@ export class D3ForceLayoutDragComponent {
         this.transactionCountData = [
             {
                 label: '거래횟수 1',
-                color: '#accbfc'
+                color: '#c8faf6'
             },
             {
                 label: '거래횟수 2',
@@ -128,11 +141,11 @@ export class D3ForceLayoutDragComponent {
             },
             {
                 label: '거래횟수 3',
-                color: '#6ff059'
+                color: '#524dff'
             },
             {
                 label: '거래횟수 4',
-                color: '#524dff'
+                color: '#fac13c'
             },
             {
                 label: '거래횟수 5건 이상',
@@ -364,6 +377,8 @@ export class D3ForceLayoutDragComponent {
                 return '#edgepath' + i
             })
             .attr('stroke-width', 2)
+            .style('font-size', 12)
+            .style('font-weight', 200)
             .style('text-anchor', 'middle')
             .style('pointer-events', 'none')
             .attr('startOffset', '50%')
@@ -399,13 +414,13 @@ export class D3ForceLayoutDragComponent {
                 if (d.transactionCount === 0) {
 
                 } else if (d.transactionCount === 1) {
-                    color = '#accbfc';
+                    color = '#c8faf6';
                 } else if (d.transactionCount === 2) {
                     color = '#68a1fc';
                 } else if (d.transactionCount === 3) {
-                    color = '#6ff059';
-                } else if (d.transactionCount === 4) {
                     color = '#524dff';
+                } else if (d.transactionCount === 4) {
+                    color = '#fac13c';
                 } else if (d.transactionCount > 4) {
                     color = '#ed743b';
                 }
