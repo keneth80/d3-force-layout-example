@@ -325,7 +325,7 @@ export class D3ForceLayoutDragComponent {
             this.svgWidth = parseInt(this.svg.style('width'));
             this.svgHeight = parseInt(this.svg.style('height'));
 
-            this.legendGroup.attr('transform', (d) => {
+            this.legendGroup.attr('transform', () => {
                 return 'translate(' + (this.svgWidth - 200) + ', 0)';
             });
         });
@@ -346,7 +346,7 @@ export class D3ForceLayoutDragComponent {
             .attr('width', 200)
             .attr('height', 270)
             .style('fill', '#bababa')
-            .style('stroke', '#ccc')
+            .style('stroke', '#000')
             .style('stroke-width', 2);
 
         accountInOutGroup.selectAll('.account-rect').data(this.accountInOutData)
