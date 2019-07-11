@@ -208,17 +208,17 @@ export class D3ForceLayoutDragComponent {
             .append('svg')
                 .attr('width', '100%')
                 .attr('height', 600)
-                .style('background', '#fff');
+                .style('background', '#f0f2f2');
 
         const defs = this.svg.append('defs');
         defs.append('marker')
             .attr('id', 'arrowhead')
             .attr('viewBox', '-0 -5 10 10')
-            .attr('refX', 25)
+            .attr('refX', 29)
             .attr('refY', 0)
             .attr('orient', 'auto')
-            .attr('markerWidth', 13)
-            .attr('markerHeight', 13)
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
             .attr('xoverflow', 'visible')
             .append('svg:path')
             .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
@@ -228,7 +228,7 @@ export class D3ForceLayoutDragComponent {
         defs.append('marker')
             .attr('id', 'arrowheadIn')
             .attr('viewBox', '-0 -5 10 10')
-            .attr('refX', 25)
+            .attr('refX', 29)
             .attr('refY', 0)
             .attr('orient', 'auto')
             .attr('markerWidth', 6)
@@ -242,7 +242,7 @@ export class D3ForceLayoutDragComponent {
         defs.append('marker')
             .attr('id', 'arrowheadOut')
             .attr('viewBox', '-0 -5 10 10')
-            .attr('refX', 25)
+            .attr('refX', 29)
             .attr('refY', 0)
             .attr('orient', 'auto')
             .attr('markerWidth', 6)
@@ -345,7 +345,7 @@ export class D3ForceLayoutDragComponent {
         accountInOutGroup.append('rect')
             .attr('width', 200)
             .attr('height', 270)
-            .style('fill', '#eee')
+            .style('fill', '#bababa')
             .style('stroke', '#ccc')
             .style('stroke-width', 2);
 
@@ -382,6 +382,9 @@ export class D3ForceLayoutDragComponent {
                 .attr('transform', (d, i) => {
                     return `translate(20, ${i * 30 + ((i + 1) * 5) + 16})`;
                 })
+                .attr('filter', 'url(#dropshadow)')
+                .style('stroke', '#fff')
+                .style('stroke-width', 2)
                 .style('fill', (d) => {
                     return d.color;
                 });
@@ -408,7 +411,7 @@ export class D3ForceLayoutDragComponent {
     }
 
     update(nodes, links) {
-        const radius = 20;
+        const radius = 22;
         this.link = this.zoomTarget.selectAll('.link')
             .data(links)
             .enter()
@@ -498,6 +501,8 @@ export class D3ForceLayoutDragComponent {
 
         this.node.append('circle')
             .attr('r', radius)
+            .style('stroke', '#fff')
+            .style('stroke-width', 2)
             .style('fill', (d, i) => {
                 let color = '#fff';
                 if (d.transactionCount === 0) {
