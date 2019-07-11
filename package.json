@@ -8,7 +8,7 @@
         "build-prod": "cross-env NODE_ENV=production webpack --mode production",
         "dev": "webpack-dev-server --open --mode development"
     },
-    "author": "",
+    "author": "kenneth",
     "license": "ISC",
     "devDependencies": {
         "@babel/core": "^7.4.5",

@@ -332,6 +332,7 @@ export class D3ForceLayoutDragComponent {
     }
 
     draw() {
+        this.simulation.alphaTarget(0.3).restart();
         this.update(this.nodeData, this.linkData);
     }
 
