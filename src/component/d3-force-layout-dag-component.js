@@ -2,6 +2,7 @@ import { select, event } from 'd3-selection';
 import { zoom, zoomIdentity } from 'd3-zoom';
 import { drag } from 'd3-drag';
 import { scaleOrdinal } from 'd3-scale';
+import { format } from 'd3-format';
 import { schemeCategory10 } from 'd3-scale-chromatic';
 import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force';
 import { payments } from './data/mock-data';
@@ -15,57 +16,68 @@ export const excute = () => {
         {
             source: 2,
             target: 1,
-            type: '입금'
+            type: '입금',
+            account: '5000000000'
         },
         {
             source: 3,
             target: 1,
-            type: '입금'
+            type: '입금',
+            account: '320000000'
         },
         {
             source: 4,
             target: 1,
-            type: '입금'
+            type: '입금',
+            account: '40000000'
         },
         {
             source: 1,
             target: 5,
-            type: '출금'
+            type: '출금',
+            account: '500000000'
         },
         {
             source: 1,
             target: 6,
-            type: '출금'
+            type: '출금',
+            account: '430000000'
         },
         {
             source: 1,
             target: 7,
-            type: '출금'
+            type: '출금',
+            account: '10000000'
         },
         {
             source: 1,
             target: 8,
-            type: '출금'
+            type: '출금',
+            account: '9000000000'
         },
         {
             source: 4,
             target: 9,
-            type: '출금'
+            type: '출금',
+            account: '600000'
         },
         {
             source: 4,
             target: 10,
-            type: '출금'
+            type: '출금',
+            account: '8401110'
         },
         {
             source: 11,
             target: 2,
-            type: '출금'
+            type: '출금',
+            account: '90000000'
         },
         {
             source: 2,
             target: 11,
-            type: '입금'
+            type: '입금',
+            account: '2498000'
         }
     ];
 
@@ -95,7 +107,8 @@ export const excute = () => {
                 tempLink.push({
                     source: tempFilterData[i].id,
                     target: target ? target.id : 1,
-                    type: '출금'
+                    type: '출금',
+                    account: tempFilterData[i].amountDeposit + tempFilterData[i].amountPaid
                 });
             }
     
@@ -103,7 +116,8 @@ export const excute = () => {
                 tempLink.push({
                     source: tempFilterData[i].id,
                     target: target ? target.id : 1,
-                    type: '입금'
+                    type: '입금',
+                    account: tempFilterData[i].amountDeposit + tempFilterData[i].amountPaid
                 });
             }
         } else {
@@ -111,7 +125,8 @@ export const excute = () => {
                 tempLink.push({
                     source: tempFilterData[i].id,
                     target: target ? target.id : 1,
-                    type: document.search.type.value
+                    type: document.search.type.value,
+                    account: tempFilterData[i].amountDeposit + tempFilterData[i].amountPaid
                 });
             }
         }
@@ -147,6 +162,8 @@ export class D3ForceLayoutDragComponent {
         this.edgepaths = null;
         this.edgelabels = null;
 
+        this.numberFmt = format(',d');
+
         // force layout
         this.simulation = null; 
 
@@ -160,6 +177,10 @@ export class D3ForceLayoutDragComponent {
         this.currentTransform = null;
 
         this.legendGroup = null;
+
+        this.detailGroup = null;
+
+        this.isDrag = false;
 
         // legend data
         this.accountInOutData = [
@@ -208,7 +229,10 @@ export class D3ForceLayoutDragComponent {
             .append('svg')
                 .attr('width', '100%')
                 .attr('height', 600)
-                .style('background', '#fff');
+                .style('background', '#fff')
+                .on('click', () => {
+                    this.detailGroup.selectAll('*').remove();
+                });
 
         const defs = this.svg.append('defs');
         defs.append('marker')
@@ -317,6 +341,11 @@ export class D3ForceLayoutDragComponent {
             .attr('transform', (d) => {
                 return 'translate(' + (this.svgWidth - 200) + ', 0)';
             });
+
+        // detail group
+        this.detailGroup = this.svg.append('g')
+            .attr('class', 'detail-group')
+            .attr('filter', 'url(#dropshadow)');
 
         const resizeEvent = fromEvent(window, 'resize').pipe(debounceTime(500));
         resizeEvent.subscribe(() => {
@@ -465,13 +494,14 @@ export class D3ForceLayoutDragComponent {
                 return '#edgepath' + i
             })
             .attr('stroke-width', 2)
-            .style('font-size', 12)
+            .style('font-size', 14)
             .style('font-weight', 200)
             .style('text-anchor', 'middle')
             .style('pointer-events', 'none')
             .attr('startOffset', '50%')
             .text((d) => {
-                return d.type;
+                return this.numberFmt(d.account);
+                // return d.type + ':' + d.account;
             });
 
         this.node = this.zoomTarget.selectAll('.node')
@@ -483,18 +513,104 @@ export class D3ForceLayoutDragComponent {
             .call(drag()
                     .on('start', (d) => {
                         this.simulation.alphaTarget(0.3).restart();
+                        this.detailGroup.selectAll('*').remove();
                         // if (!event.active) this.simulation.alphaTarget(0.3).restart()
                         d.fx = d.x;
                         d.fy = d.y;
                     })
                     .on('drag', (d) => {
+                        this.isDrag = true;
                         d.fx = Math.max(radius, Math.min(this.svgWidth - radius, event.x));
                         d.fy = Math.max(radius, Math.min(this.svgHeight - radius, event.y));
                     })
                     .on('end', () => {
+                        this.isDrag = false;
                         this.simulation.alphaTarget(0.3).stop();
                     })
-            );
+            )
+            .on('click', (d) => {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                this.detailGroup.attr('transform', `translate(${event.offsetX}, ${event.offsetY})`);
+                this.detailGroup.selectAll('.detail-background')
+                    .data(['rect'])
+                    .join(
+                        (enter) => enter.append('rect').attr('class', 'detail-background'),
+                        (update) => update,
+                        (exit) => exit.remove()
+                    )
+                    .attr('width', 230)
+                    .attr('height', 90)
+                    .style('fill', '#a6c8ff')
+                    .style('stroke', '#000')
+                    .style('rx', 10)
+                    .style('ry', 10);
+
+                const labels = [
+                    {
+                        key: 'name',
+                        label: '이름',
+                        value: d.name
+                    },
+                    {
+                        key: 'accountNumber',
+                        label: '계좌번호',
+                        value: d.accountNumber
+                    },
+                    {
+                        key: 'financialInstitution',
+                        label: '금융기관',
+                        value: d.financialInstitution
+                    },
+                    {
+                        key: 'balance',
+                        label: '잔금',
+                        value: d.balance
+                    }
+                ];
+
+                const labelelements = this.detailGroup.selectAll('.detail-label')
+                    .data(labels)
+                    .join(
+                        (enter) => enter.append('text').attr('class', 'detail-label'),
+                        (update) => update,
+                        (exit) => exit.remove()
+                    )
+                    .attr('x', 65)
+                    .attr('y', (d, i) => {
+                        return i * 20 + 20;
+                    })
+                    .attr('width', 70)
+                    .style('fill', '#314d7a')
+                    .style('text-anchor', 'end')
+                    .text((d) => {
+                        return d.label;
+                    });
+                
+                this.detailGroup.selectAll('.detail-value')
+                    .data(labels)
+                    .join(
+                        (enter) => enter.append('text').attr('class', 'detail-value'),
+                        (update) => update,
+                        (exit) => exit.remove()
+                    )
+                    .attr('x', 80)
+                    .attr('y', (d, i) => {
+                        return i * 20 + 20;
+                    })
+                    .attr('width', 70)
+                    .style('text-anchor', 'start')
+                    .text((d) => {
+                        let returnValue = '';
+                        if (d.key === 'balance') {
+                            returnValue = this.numberFmt(d.value);
+                        } else {
+                            returnValue = d.value;
+                        }
+                        return returnValue;
+                    });
+            });
 
         this.node.append('circle')
             .attr('r', radius)
