@@ -28,8 +28,8 @@ export const excute = () => {
         {
             source: 4,
             target: 1,
-            type: '입금',
-            account: '40000000'
+            type: '출금',
+            account: '38000'
         },
         {
             source: 1,
@@ -85,6 +85,12 @@ export const excute = () => {
 
     select('#search_btn').on('click', () => {
         const target = payments.find((item) => item.name === document.search.name.value);
+        
+        if (!target) {
+            alert('회원정보가 없습니다.');
+            return;
+        }
+
         let tempPayments = payments.filter((item) => {
             if (parseInt(item.transactionCount) >= parseInt(document.search.account_count.value)) {
                 return true;
@@ -93,52 +99,26 @@ export const excute = () => {
             }
         });
 
-        const tempFilterData = tempPayments.filter((item) => {
-            if (item.label === document.search.name.value) {
-                return false;
-            } else {
+        const tempLinkData = linkData.filter((item) => {
+            if (item.source.id === target.id || item.target.id === target.id) {
                 return true;
+            } else {
+                return false;
             }
         });
 
-        let tempLink = [];
-        if (document.search.type.value === '전체') {
-            for (let i = 0; i < tempFilterData.length; i++) {
-                tempLink.push({
-                    source: tempFilterData[i].id,
-                    target: target ? target.id : 1,
-                    type: '출금',
-                    account: tempFilterData[i].amountDeposit + tempFilterData[i].amountPaid
-                });
+        const tempFilterData = tempPayments.filter((item) => {
+            const source = tempLinkData.find((link) => link.source.id === item.id || link.target.id === item.id);
+            if (source) {
+                return true;
+            } else {
+                return false;
             }
-    
-            for (let i = 5; i < tempFilterData.length; i++) {
-                tempLink.push({
-                    source: tempFilterData[i].id,
-                    target: target ? target.id : 1,
-                    type: '입금',
-                    account: tempFilterData[i].amountDeposit + tempFilterData[i].amountPaid
-                });
-            }
-        } else {
-            for (let i = 0; i < tempFilterData.length; i++) {
-                tempLink.push({
-                    source: tempFilterData[i].id,
-                    target: target ? target.id : 1,
-                    type: document.search.type.value,
-                    account: tempFilterData[i].amountDeposit + tempFilterData[i].amountPaid
-                });
-            }
-        }
+        });
 
-        tempLink = tempLink.map((item) => {
-            if (document.search.type.value !== '전체') {
-                item.type = document.search.type.value;
-            }
-            return item;
-        })
+        console.log('tempFilterData : ', tempFilterData, tempLinkData);
 
-        d3ForceLayoutDragComponent.updateData(tempFilterData, tempLink);
+        d3ForceLayoutDragComponent.updateData(tempFilterData, tempLinkData, target);
     });
 };
 
@@ -181,6 +161,9 @@ export class D3ForceLayoutDragComponent {
         this.detailGroup = null;
 
         this.isDrag = false;
+
+        // 시연 테스트를 위함 기준 거래자명
+        this.compare = null;
 
         // legend data
         this.accountInOutData = [
@@ -432,15 +415,18 @@ export class D3ForceLayoutDragComponent {
                 });
     }
 
-    updateData(nodes, links) {
+    updateData(nodes, links, compare) {
+        this.compare = compare
         this.nodeData = nodes;
         this.linkData = links;
         this.zoomTarget.remove();
+        this.detailGroup.selectAll('*').remove();
         this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
         this.simulation.alphaTarget(0.3).restart();
         this.update(nodes, links);
         setTimeout(() => {
             this.svg.node().appendChild(this.legendGroup.node());
+            this.svg.node().appendChild(this.detailGroup.node());
         }, 500);
         
     }
@@ -512,101 +498,6 @@ export class D3ForceLayoutDragComponent {
                 return this.numberFmt(d.account);
                 // return d.type + ':' + d.account;
             });
-            // .on('click', (d) => {
-            //     event.preventDefault();
-            //     event.stopPropagation();
-                
-            //     this.detailGroup.attr('transform', `translate(${event.offsetX}, ${event.offsetY})`);
-            //     this.detailGroup.selectAll('.detail-background')
-            //         .data(['rect'])
-            //         .join(
-            //             (enter) => enter.append('rect').attr('class', 'detail-background'),
-            //             (update) => update,
-            //             (exit) => exit.remove()
-            //         )
-            //         .attr('width', 230)
-            //         .attr('height', 90)
-            //         .style('fill', '#a6c8ff')
-            //         .style('stroke', '#000')
-            //         .style('rx', 10)
-            //         .style('ry', 10);
-
-            //     const targetInfo = this.nodeData.find((item) => item.id === d.target);
-
-            //     const labels = [
-            //         {
-            //             key: 'accountNumber',
-            //             label: '계좌번호',
-            //             value: targetInfo.accountNumber
-            //         },
-            //         {
-            //             key: 'transactionType',
-            //             label: '거래종류',
-            //             value: targetInfo.transactionType
-            //         },
-            //         {
-            //             key: 'account',
-            //             label: '금액',
-            //             value: d.account
-            //         },
-            //         {
-            //             key: 'briefs',
-            //             label: '적요',
-            //             value: targetInfo.briefs
-            //         },
-            //         {
-            //             key: 'financialInstitution',
-            //             label: '금융기관',
-            //             value: targetInfo.financialInstitution
-            //         },
-            //         {
-            //             key: 'shopName',
-            //             label: '취급점',
-            //             value: targetInfo.shopName
-            //         }
-            //     ];
-
-            //     const labelelements = this.detailGroup.selectAll('.detail-label')
-            //         .data(labels)
-            //         .join(
-            //             (enter) => enter.append('text').attr('class', 'detail-label'),
-            //             (update) => update,
-            //             (exit) => exit.remove()
-            //         )
-            //         .attr('x', 65)
-            //         .attr('y', (d, i) => {
-            //             return i * 20 + 20;
-            //         })
-            //         .attr('width', 70)
-            //         .style('fill', '#314d7a')
-            //         .style('text-anchor', 'end')
-            //         .text((d) => {
-            //             return d.label;
-            //         });
-                
-            //     this.detailGroup.selectAll('.detail-value')
-            //         .data(labels)
-            //         .join(
-            //             (enter) => enter.append('text').attr('class', 'detail-value'),
-            //             (update) => update,
-            //             (exit) => exit.remove()
-            //         )
-            //         .attr('x', 80)
-            //         .attr('y', (d, i) => {
-            //             return i * 20 + 20;
-            //         })
-            //         .attr('width', 70)
-            //         .style('text-anchor', 'start')
-            //         .text((d) => {
-            //             let returnValue = '';
-            //             if (d.key === 'balance') {
-            //                 returnValue = this.numberFmt(d.value);
-            //             } else {
-            //                 returnValue = d.value;
-            //             }
-            //             return returnValue;
-            //         });
-            // });
 
         this.node = this.zoomTarget.selectAll('.node')
             .data(nodes)
@@ -766,7 +657,18 @@ export class D3ForceLayoutDragComponent {
                     .attr('width', 150)
                     .style('fill', '#314d7a')
                     .text((d) => {
-                        return d.target.transactionType;
+                        let returnValue = d.type;
+                        // if (this.compare && (d.source.id === this.compare.id)) {
+                            
+                        // } else {
+                        //     if (d.type === '입금') {
+                        //         returnValue = '출금';
+                        //     } else {
+                        //         returnValue = '입금'
+                        //     }
+                        // }
+                        // console.log('returnValue : ', this.compare, d);
+                        return returnValue;
                     });
 
                 accountGroup.selectAll('.account-value-number')
