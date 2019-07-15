@@ -348,7 +348,10 @@ export class D3ForceLayoutDragComponent {
 
     draw() {
         this.simulation.alphaTarget(0.3).restart();
-        this.update(this.nodeData, this.linkData);
+        setTimeout(() => {
+            this.update(this.nodeData, this.linkData);
+        }, 300)
+        
     }
 
     drawLegend() {
@@ -451,7 +454,21 @@ export class D3ForceLayoutDragComponent {
             .style('stroke', (d) => {
                 let color = this.accountInOutData.find((item) => item.label === d.type).color;
                 return color;
-            });
+            })
+            // .style('stroke-width', (d) => {
+                
+            //     let returnValue = 2;
+            //     // TODO: 5회이상 > 5회미만 > 1회
+            //     if (d.transactionCount > 5) {
+            //         returnValue = 5;
+            //     } else if (d.transactionCount < 5) {
+            //         returnValue = 4;
+            //     } else if (d.transactionCount === 1) {
+            //         returnValue = 3;
+            //     } 
+
+            //     return returnValue;
+            // });
             
         this.link.append('title')
             .text((d) => {
@@ -711,7 +728,10 @@ export class D3ForceLayoutDragComponent {
             });
 
         this.node.append('circle')
-            .attr('r', radius)
+            .attr('r', (d) => {
+                // TODO: 거래총액 1억이상 > 1억미만 > 5천만원 미만
+                return radius;
+            })
             .style('stroke', '#fff')
             .style('stroke-width', 2)
             .style('fill', (d, i) => {
