@@ -442,33 +442,33 @@ export class D3ForceLayoutDragComponent {
             .append('line')
             .attr('class', 'link')
             // .attr('marker-end','url(#arrowhead)')
-            .attr('marker-end', (d) => {
-                let returnValue = 'url(#arrowhead)';
-                if (d.type === '출금') {
-                    returnValue = 'url(#arrowheadOut)';
-                } else {
-                    returnValue = 'url(#arrowheadIn)';
-                }
-                return returnValue;
-            })
+            // .attr('marker-end', (d) => {
+            //     let returnValue = 'url(#arrowhead)';
+            //     if (d.type === '출금') {
+            //         returnValue = 'url(#arrowheadOut)';
+            //     } else {
+            //         returnValue = 'url(#arrowheadIn)';
+            //     }
+            //     return returnValue;
+            // })
             .style('stroke', (d) => {
                 let color = this.accountInOutData.find((item) => item.label === d.type).color;
                 return color;
             })
-            // .style('stroke-width', (d) => {
-                
-            //     let returnValue = 2;
-            //     // TODO: 5회이상 > 5회미만 > 1회
-            //     if (d.transactionCount > 5) {
-            //         returnValue = 5;
-            //     } else if (d.transactionCount < 5) {
-            //         returnValue = 4;
-            //     } else if (d.transactionCount === 1) {
-            //         returnValue = 3;
-            //     } 
+            .style('stroke-width', (d) => {
+                const source = this.nodeData.find((item) => item.id === d.source);
+                let returnValue = 2;
+                // TODO: 5회이상 > 5회미만 > 1회
+                if (source.transactionCount > 5) {
+                    returnValue = 5;
+                } else if (source.transactionCount < 5) {
+                    returnValue = 4;
+                } else if (source.transactionCount === 1) {
+                    returnValue = 2;
+                } 
 
-            //     return returnValue;
-            // });
+                return returnValue;
+            });
             
         this.link.append('title')
             .text((d) => {
@@ -730,27 +730,35 @@ export class D3ForceLayoutDragComponent {
         this.node.append('circle')
             .attr('r', (d) => {
                 // TODO: 거래총액 1억이상 > 1억미만 > 5천만원 미만
-                return radius;
+                let returnValue = radius;
+                const transactionAccount = parseInt(d.amountPaid) + parseInt(d.amountDeposit);
+                if (transactionAccount >= 100000000) {
+                    returnValue += 10;
+                } else if (transactionAccount < 50000000) {
+                    
+                } else if (transactionAccount < 100000000) {
+                    returnValue += 5;
+                }
+                return returnValue;
             })
             .style('stroke', '#fff')
             .style('stroke-width', 2)
             .style('fill', (d, i) => {
-                let color = '#fff';
-                if (d.transactionCount === 0) {
+                let color = '#68a1fc';
+                // if (d.transactionCount === 0) {
 
-                } else if (d.transactionCount === 1) {
-                    color = '#c8faf6';
-                } else if (d.transactionCount === 2) {
-                    color = '#68a1fc';
-                } else if (d.transactionCount === 3) {
-                    color = '#524dff';
-                } else if (d.transactionCount === 4) {
-                    color = '#fac13c';
-                } else if (d.transactionCount > 4) {
-                    color = '#ed743b';
-                }
+                // } else if (d.transactionCount === 1) {
+                //     color = '#c8faf6';
+                // } else if (d.transactionCount === 2) {
+                //     color = '#68a1fc';
+                // } else if (d.transactionCount === 3) {
+                //     color = '#524dff';
+                // } else if (d.transactionCount === 4) {
+                //     color = '#fac13c';
+                // } else if (d.transactionCount > 4) {
+                //     color = '#ed743b';
+                // }
                 return color;
-                // return this.colors(i);
             });
 
         this.node.append('title')
@@ -765,9 +773,9 @@ export class D3ForceLayoutDragComponent {
             .style('font-size', 'small')
             .style('stroke', (d, i) => {
                 let color = '#000';
-                if (d.transactionCount > 2) {
-                    color = '#fff';
-                }
+                // if (d.transactionCount > 2) {
+                //     color = '#fff';
+                // }
                 return color;
                 // return this.colors(i);
             })
