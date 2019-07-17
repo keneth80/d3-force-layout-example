@@ -1,4 +1,4 @@
-import { select, event } from 'd3-selection';
+import { select, event, mouse } from 'd3-selection';
 import { zoom, zoomIdentity } from 'd3-zoom';
 import { drag } from 'd3-drag';
 import { scaleOrdinal } from 'd3-scale';
@@ -83,6 +83,8 @@ export const excute = () => {
 
     const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData, linkData});
 
+    document.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
+
     select('#search_btn').on('click', () => {
         const target = payments.find((item) => item.name === document.search.name.value);
         
@@ -118,7 +120,7 @@ export const excute = () => {
 
         console.log('tempFilterData : ', tempFilterData, tempLinkData);
 
-        d3ForceLayoutDragComponent.updateData(tempFilterData, tempLinkData, target);
+        d3ForceLayoutDragComponent.updateData(tempFilterData, tempLinkData);
     });
 };
 
@@ -197,6 +199,22 @@ export class D3ForceLayoutDragComponent {
             {
                 label: '거래횟수 5건 이상',
                 color: '#ed743b'
+            }
+        ];
+
+        // 거래총액 1억이상 > 1억미만 > 5천만원 미만
+        this.transactionAmountData = [
+            {
+                label: '거래총액 1억이상',
+                radius: 32
+            },
+            {
+                label: '1억미만',
+                radius: 27
+            },
+            {
+                label: '5천만원 미만',
+                radius: 20
             }
         ];
 
@@ -363,6 +381,7 @@ export class D3ForceLayoutDragComponent {
 
         accountInOutGroup.append('rect')
             .attr('width', 200)
+            // .attr('height', 70)
             .attr('height', 270)
             .style('fill', '#bababa')
             .style('stroke', '#000')
@@ -395,27 +414,61 @@ export class D3ForceLayoutDragComponent {
                 return 'translate(0, 80)';
             });
 
-        transactionGroup.selectAll('.transaction-circle').data(this.transactionCountData)
+        transactionGroup.selectAll('.transaction-circle').data(this.transactionAmountData)
             .enter().append('circle')
-                .attr('r', 15)
+                .attr('r', (d) => {
+                    return d.radius;
+                })
                 .attr('transform', (d, i) => {
-                    return `translate(20, ${i * 30 + ((i + 1) * 5) + 16})`;
+                    let returnY = d.radius;
+                    if (i === 1) {
+                        returnY = 100;
+                    } else if (i === 2) {
+                        returnY = 155;
+                    }
+                    return `translate(${d.radius + (35 - d.radius)}, ${returnY})`;
                 })
                 .attr('filter', 'url(#dropshadow)')
                 .style('stroke', '#fff')
                 .style('stroke-width', 2)
-                .style('fill', (d) => {
-                    return d.color;
-                });
+                .style('fill', '#68a1fc');
 
-        transactionGroup.selectAll('.transaction-label').data(this.transactionCountData)
+        transactionGroup.selectAll('.transaction-label').data(this.transactionAmountData)
             .enter().append('text')
                 .attr('transform', (d, i) => {
-                    return `translate(40, ${i * 30 + ((i + 1) * 5) + 22})`;
+                    let returnY = d.radius;
+                    if (i === 1) {
+                        returnY = 100;
+                    } else if (i === 2) {
+                        returnY = 155;
+                    }
+                    return `translate(80, ${returnY + 5})`;
                 })
                 .text((d) => {
                     return d.label;
                 });
+
+        // transactionGroup.selectAll('.transaction-circle').data(this.transactionCountData)
+        //     .enter().append('circle')
+        //         .attr('r', 15)
+        //         .attr('transform', (d, i) => {
+        //             return `translate(20, ${i * 30 + ((i + 1) * 5) + 16})`;
+        //         })
+        //         .attr('filter', 'url(#dropshadow)')
+        //         .style('stroke', '#fff')
+        //         .style('stroke-width', 2)
+        //         .style('fill', (d) => {
+        //             return d.color;
+        //         });
+
+        // transactionGroup.selectAll('.transaction-label').data(this.transactionCountData)
+        //     .enter().append('text')
+        //         .attr('transform', (d, i) => {
+        //             return `translate(40, ${i * 30 + ((i + 1) * 5) + 22})`;
+        //         })
+        //         .text((d) => {
+        //             return d.label;
+        //         });
     }
 
     updateData(nodes, links, compare) {
@@ -435,7 +488,7 @@ export class D3ForceLayoutDragComponent {
     }
 
     update(nodes, links) {
-        const radius = 22;
+        const radius = 20;
         this.link = this.zoomTarget.selectAll('.link')
             .data(links)
             .enter()
