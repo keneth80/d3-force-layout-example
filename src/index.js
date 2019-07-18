@@ -7,4 +7,4 @@ import { excute } from './component/d3-force-layout-dag-component';
 //     const documentSelectionExample = new DocumentSelectionExample();
 // };
 
-excute();
+excute(parent.document, true);

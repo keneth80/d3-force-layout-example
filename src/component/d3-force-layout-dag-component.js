@@ -4,124 +4,136 @@ import { drag } from 'd3-drag';
 import { scaleOrdinal } from 'd3-scale';
 import { format } from 'd3-format';
 import { schemeCategory10 } from 'd3-scale-chromatic';
+import { csv } from 'd3-fetch';
 import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force';
 import { payments } from './data/mock-data';
 import { fromEvent } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-export const excute = () => {
-    const nodeData = payments;
-
-    const linkData = [
-        {
-            source: 2,
-            target: 1,
-            type: '입금',
-            account: '5000000000'
-        },
-        {
-            source: 3,
-            target: 1,
-            type: '입금',
-            account: '320000000'
-        },
-        {
-            source: 4,
-            target: 1,
-            type: '출금',
-            account: '38000'
-        },
-        {
-            source: 1,
-            target: 5,
-            type: '출금',
-            account: '500000000'
-        },
-        {
-            source: 1,
-            target: 6,
-            type: '출금',
-            account: '430000000'
-        },
-        {
-            source: 1,
-            target: 7,
-            type: '출금',
-            account: '10000000'
-        },
-        {
-            source: 1,
-            target: 8,
-            type: '출금',
-            account: '9000000000'
-        },
-        {
-            source: 4,
-            target: 9,
-            type: '출금',
-            account: '600000'
-        },
-        {
-            source: 4,
-            target: 10,
-            type: '출금',
-            account: '8401110'
-        },
-        {
-            source: 11,
-            target: 2,
-            type: '출금',
-            account: '90000000'
-        },
-        {
-            source: 2,
-            target: 11,
-            type: '입금',
-            account: '2498000'
+export const excute = (doc, isMock = false) => {
+    let originData = [];
+    if (!isMock) {
+        const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData: [], linkData: []});
+        if (doc) {
+            doc.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
         }
-    ];
+        return;
+    }
+    csv('./component/data/mock-data.csv', (data, index) => {
+        data.AmountDeposit = parseInt(data.AmountDeposit) || 0;
+        data.AmountPaid = parseInt(data.AmountPaid) || 0;
+        data.Balance = parseInt(data.Balance) || 0;
+        data.id = index;
+        return data;
+    }).then((mock) => {
+        const linkData = [];
+        originData = mock.slice(1);
+        const nodeData = mock.slice(1).map((d, i) => {
+            // d.transactionCount = mock.filter(item => item.InAccountNumber === d.InAccountNumber).length;
+            let targetItem = originData.find(item => item.OutAccountNumber === d.InAccountNumber);
+            if (targetItem) {
+                if (d.AmountDeposit > 0) {
+                    linkData.push({
+                        source: d.id,
+                        target: targetItem.id,
+                        type: '입금',
+                        account: d.AmountDeposit + ''
+                    });
+                } else {
+                    linkData.push({
+                        source: d.id,
+                        target: targetItem.id,
+                        type: '출금',
+                        account: d.AmountPaid + ''
+                    });
+                }
+            }
+            return d;
+        });
 
-    const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData, linkData});
-
-    document.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
-
-    select('#search_btn').on('click', () => {
-        const target = payments.find((item) => item.name === document.search.name.value);
-        
-        if (!target) {
-            alert('회원정보가 없습니다.');
-            return;
+        const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData, linkData});
+        if (doc) {
+            doc.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
         }
-
-        let tempPayments = payments.filter((item) => {
-            if (parseInt(item.transactionCount) >= parseInt(document.search.account_count.value)) {
-                return true;
-            } else {
-                return false;
-            }
-        });
-
-        const tempLinkData = linkData.filter((item) => {
-            if (item.source.id === target.id || item.target.id === target.id) {
-                return true;
-            } else {
-                return false;
-            }
-        });
-
-        const tempFilterData = tempPayments.filter((item) => {
-            const source = tempLinkData.find((link) => link.source.id === item.id || link.target.id === item.id);
-            if (source) {
-                return true;
-            } else {
-                return false;
-            }
-        });
-
-        console.log('tempFilterData : ', tempFilterData, tempLinkData);
-
-        d3ForceLayoutDragComponent.updateData(tempFilterData, tempLinkData);
+        console.log('mock : ', nodeData, linkData);
     });
+    // const nodeData = payments;
+
+    // const linkData = [
+    //     {
+    //         source: 2,
+    //         target: 1,
+    //         type: '입금',
+    //         account: '5000000000'
+    //     },
+    //     {
+    //         source: 3,
+    //         target: 1,
+    //         type: '입금',
+    //         account: '320000000'
+    //     },
+    //     {
+    //         source: 4,
+    //         target: 1,
+    //         type: '출금',
+    //         account: '38000'
+    //     },
+    //     {
+    //         source: 1,
+    //         target: 5,
+    //         type: '출금',
+    //         account: '500000000'
+    //     },
+    //     {
+    //         source: 1,
+    //         target: 6,
+    //         type: '출금',
+    //         account: '430000000'
+    //     },
+    //     {
+    //         source: 1,
+    //         target: 7,
+    //         type: '출금',
+    //         account: '10000000'
+    //     },
+    //     {
+    //         source: 1,
+    //         target: 8,
+    //         type: '출금',
+    //         account: '9000000000'
+    //     },
+    //     {
+    //         source: 4,
+    //         target: 9,
+    //         type: '출금',
+    //         account: '600000'
+    //     },
+    //     {
+    //         source: 4,
+    //         target: 10,
+    //         type: '출금',
+    //         account: '8401110'
+    //     },
+    //     {
+    //         source: 11,
+    //         target: 2,
+    //         type: '출금',
+    //         account: '90000000'
+    //     },
+    //     {
+    //         source: 2,
+    //         target: 11,
+    //         type: '입금',
+    //         account: '2498000'
+    //     }
+    // ];
+
+    // const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData, linkData});
+    // if (doc) {
+    //     doc.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
+    // }
+
+    // console.log('nodeData : ', nodeData, linkData);
 };
 
 export class D3ForceLayoutDragComponent {
@@ -220,7 +232,7 @@ export class D3ForceLayoutDragComponent {
 
         this.init();
         this.draw();
-        this.drawLegend();
+        // this.drawLegend();
     }
 
     init() {
@@ -310,7 +322,7 @@ export class D3ForceLayoutDragComponent {
         this.simulation = forceSimulation()
             .force('link', forceLink().id((d) => {
                 return d.id;
-            }).distance(250).strength(1))
+            }).iterations(5).distance(200).strength(1))
             .force('box', () => {
                 for (let i = 0, n = this.nodeData.length; i < n; ++i) {
                     const curr_node = this.nodeData[i];
@@ -358,9 +370,11 @@ export class D3ForceLayoutDragComponent {
             this.svgWidth = parseInt(this.svg.style('width'));
             this.svgHeight = parseInt(this.svg.style('height'));
 
-            this.legendGroup.attr('transform', () => {
-                return 'translate(' + (this.svgWidth - 200) + ', 0)';
-            });
+            // this.legendGroup.attr('transform', () => {
+            //     return 'translate(' + (this.svgWidth - 200) + ', 0)';
+            // });
+
+            this.detailGroup.attr('transform', `translate(${this.svgWidth - 250}, 0)`);
         });
     }
 
@@ -447,28 +461,6 @@ export class D3ForceLayoutDragComponent {
                 .text((d) => {
                     return d.label;
                 });
-
-        // transactionGroup.selectAll('.transaction-circle').data(this.transactionCountData)
-        //     .enter().append('circle')
-        //         .attr('r', 15)
-        //         .attr('transform', (d, i) => {
-        //             return `translate(20, ${i * 30 + ((i + 1) * 5) + 16})`;
-        //         })
-        //         .attr('filter', 'url(#dropshadow)')
-        //         .style('stroke', '#fff')
-        //         .style('stroke-width', 2)
-        //         .style('fill', (d) => {
-        //             return d.color;
-        //         });
-
-        // transactionGroup.selectAll('.transaction-label').data(this.transactionCountData)
-        //     .enter().append('text')
-        //         .attr('transform', (d, i) => {
-        //             return `translate(40, ${i * 30 + ((i + 1) * 5) + 22})`;
-        //         })
-        //         .text((d) => {
-        //             return d.label;
-        //         });
     }
 
     updateData(nodes, links, compare) {
@@ -512,13 +504,13 @@ export class D3ForceLayoutDragComponent {
                 const source = this.nodeData.find((item) => item.id === d.source);
                 let returnValue = 2;
                 // TODO: 5회이상 > 5회미만 > 1회
-                if (source.transactionCount > 5) {
-                    returnValue = 5;
-                } else if (source.transactionCount < 5) {
-                    returnValue = 4;
-                } else if (source.transactionCount === 1) {
-                    returnValue = 2;
-                } 
+                // if (source.transactionCount > 5) {
+                //     returnValue = 5;
+                // } else if (source.transactionCount < 5) {
+                //     returnValue = 4;
+                // } else if (source.transactionCount === 1) {
+                //     returnValue = 2;
+                // } 
 
                 return returnValue;
             });
@@ -599,185 +591,8 @@ export class D3ForceLayoutDragComponent {
             .on('click', (d) => {
                 event.preventDefault();
                 event.stopPropagation();
-                const boxHeight = 110;
-                const boxWidth = 380;
-                this.detailGroup.attr('transform', `translate(${event.offsetX}, ${event.offsetY})`);
-                const background = this.detailGroup.selectAll('.detail-background')
-                    .data(['rect'])
-                    .join(
-                        (enter) => enter.append('rect').attr('class', 'detail-background'),
-                        (update) => update,
-                        (exit) => exit.remove()
-                    )
-                    .attr('width', boxWidth)
-                    .attr('height', boxHeight)
-                    .style('fill', '#a6c8ff')
-                    .style('stroke', '#000')
-                    .style('rx', 10)
-                    .style('ry', 10);
-
-                const labels = [
-                    {
-                        key: 'name',
-                        label: '이름',
-                        value: d.name
-                    },
-                    {
-                        key: 'accountNumber',
-                        label: '계좌번호',
-                        value: d.accountNumber
-                    },
-                    {
-                        key: 'financialInstitution',
-                        label: '금융기관',
-                        value: d.financialInstitution
-                    },
-                    {
-                        key: 'balance',
-                        label: '잔금',
-                        value: d.balance
-                    }
-                ];
-
-                const labelelements = this.detailGroup.selectAll('.detail-label')
-                    .data(labels)
-                    .join(
-                        (enter) => enter.append('text').attr('class', 'detail-label'),
-                        (update) => update,
-                        (exit) => exit.remove()
-                    )
-                    .attr('x', 65)
-                    .attr('y', (d, i) => {
-                        return i * 20 + 20;
-                    })
-                    .attr('width', 70)
-                    .style('fill', '#314d7a')
-                    .style('text-anchor', 'end')
-                    .text((d) => {
-                        return d.label;
-                    });
-                
-                this.detailGroup.selectAll('.detail-value')
-                    .data(labels)
-                    .join(
-                        (enter) => enter.append('text').attr('class', 'detail-value'),
-                        (update) => update,
-                        (exit) => exit.remove()
-                    )
-                    .attr('x', 80)
-                    .attr('y', (d, i) => {
-                        return i * 20 + 20;
-                    })
-                    .attr('width', 70)
-                    .style('text-anchor', 'start')
-                    .text((d) => {
-                        let returnValue = '';
-                        if (d.key === 'balance') {
-                            returnValue = this.numberFmt(d.value);
-                        } else {
-                            returnValue = d.value;
-                        }
-                        return returnValue;
-                    });
-
-                const accounts = links.filter((item) => {
-                    if (item.source.id === d.id || item.target.id === d.id) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-
-                this.detailGroup.selectAll('.account-label')
-                    .data(['label'])
-                    .join(
-                        (enter) => enter.append('text').attr('class', 'account-label'),
-                        (update) => update,
-                        (exit) => exit.remove()
-                    )
-                    .attr('x', 65)
-                    .attr('y', (d, i) => {
-                        return (labels.length) * 20 + 20;
-                    })
-                    .attr('width', 70)
-                    .style('fill', '#314d7a')
-                    .style('text-anchor', 'end')
-                    .text('거래내역');
-
-                const accountGroup = this.detailGroup.selectAll('.account-value-group')
-                    .data(['label'])
-                    .join(
-                        (enter) => enter.append('g').attr('class', 'account-value-group'),
-                        (update) => update,
-                        (exit) => exit.remove()
-                    )
-                    .attr('transform', `translate(80, ${(labels.length - 1) * 20 + 20})`);
-
-                accountGroup.selectAll('.account-value-type')
-                    .data(accounts)
-                    .join(
-                        (enter) => enter.append('text').attr('class', 'account-value-type'),
-                        (update) => update,
-                        (exit) => exit.remove()
-                    )
-                    .attr('x', 0)
-                    .attr('y', (d, i) => {
-                        return i * 20 + 20;
-                    })
-                    .attr('width', 150)
-                    .style('fill', '#314d7a')
-                    .text((d) => {
-                        let returnValue = d.type;
-                        // if (this.compare && (d.source.id === this.compare.id)) {
-                            
-                        // } else {
-                        //     if (d.type === '입금') {
-                        //         returnValue = '출금';
-                        //     } else {
-                        //         returnValue = '입금'
-                        //     }
-                        // }
-                        // console.log('returnValue : ', this.compare, d);
-                        return returnValue;
-                    });
-
-                accountGroup.selectAll('.account-value-number')
-                    .data(accounts)
-                    .join(
-                        (enter) => enter.append('text').attr('class', 'account-value-number'),
-                        (update) => update,
-                        (exit) => exit.remove()
-                    )
-                    .attr('x', 40)
-                    .attr('y', (d, i) => {
-                        return i * 20 + 20;
-                    })
-                    .attr('width', 150)
-                    .style('fill', '#314d7a')
-                    .text((d) => {
-                        return d.target.accountNumber;
-                    });
-
-                accountGroup.selectAll('.account-value-paid')
-                    .data(accounts)
-                    .join(
-                        (enter) => enter.append('text').attr('class', 'account-value-paid'),
-                        (update) => update,
-                        (exit) => exit.remove()
-                    )
-                    .attr('x', 180)
-                    .attr('y', (d, i) => {
-                        return i * 20 + 20;
-                    })
-                    .attr('width', 150)
-                    .style('fill', '#314d7a')
-                    .text((d) => {
-                        return d.target.amountPaid > 0 ? d.target.amountPaid : d.target.amountDeposit;
-                    });
-                
-                background.attr('height', boxHeight + (accounts.length - 1) * 20);
-                
-                console.log('accountIds : ', accounts, links);
+                // this.drawDetailInfo(d);
+                this.drawAccountInformation(d);
             });
 
         this.node.append('circle')
@@ -833,7 +648,7 @@ export class D3ForceLayoutDragComponent {
                 // return this.colors(i);
             })
             .text((d) => {
-                return d.name;
+                return d.Name;
                 // return d.name + ':' + d.label;
             })
             .attr('dx', (d, i, nodeList) => {
@@ -852,7 +667,320 @@ export class D3ForceLayoutDragComponent {
 
         setTimeout(() => {
             this.simulation.stop();
-        }, 2000); 
+        }, 3000); 
+    }
+
+    drawAccountInformation(infoData) {
+        const boxHeight = 290;
+        const boxWidth = 250;
+        this.detailGroup.attr('transform', `translate(${this.svgWidth - boxWidth}, 0)`);
+        const background = this.detailGroup.selectAll('.detail-background')
+            .data(['rect'])
+            .join(
+                (enter) => enter.append('rect').attr('class', 'detail-background'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('width', boxWidth)
+            .attr('height', boxHeight)
+            .style('fill', '#bababa')
+            .style('stroke', '#000')
+            .style('stroke-width', 2);
+        // Name,NameNo,Bank,OutAccountNumber,InAccountNumber,TransactionDate,TransactionTime,TransactionType,TransactionChannel,TransactionMeans,Briefs,CurrencySeparation,ForeignCurrencyTransactionAmt,AmountPaid,AmountDeposit,Balance,FinancialInstitution,ShopName
+        // 거래자명,실명번호,금융기관,계좌번호,거래일자,거래시각,거래종류명,거래수단명,거래채널명,적요,통화구분,잔액,취급금융기관,취급점명
+        const labels = [
+            {
+                key: 'Name',
+                label: '거래자명',
+                value: infoData.Name
+            },
+            {
+                key: 'NameNo',
+                label: '실명번호',
+                value: infoData.NameNo
+            },
+            {
+                key: 'Bank',
+                label: '금융기관',
+                value: infoData.Bank
+            },
+            {
+                key: 'OutAccountNumber',
+                label: '계좌번호',
+                value: infoData.OutAccountNumber
+            },
+            {
+                key: 'TransactionDate',
+                label: '거래일자',
+                value: infoData.TransactionDate
+            },
+            {
+                key: 'TransactionTime',
+                label: '거래시각',
+                value: infoData.TransactionTime
+            },
+            {
+                key: 'TransactionType',
+                label: '거래종류명',
+                value: infoData.TransactionType
+            },
+            {
+                key: 'TransactionChannel',
+                label: '거래수단명',
+                value: infoData.TransactionChannel
+            },
+            {
+                key: 'TransactionMeans',
+                label: '거래채널명',
+                value: infoData.TransactionMeans
+            },
+            {
+                key: 'Briefs',
+                label: '적요',
+                value: infoData.Briefs
+            },
+            {
+                key: 'CurrencySeparation',
+                label: '통화구분',
+                value: infoData.CurrencySeparation
+            },
+            {
+                key: 'Balance',
+                label: '잔액',
+                value: this.numberFmt(infoData.Balance)
+            },
+            {
+                key: 'FinancialInstitution',
+                label: '취급금융기관',
+                value: infoData.FinancialInstitution
+            },
+            {
+                key: 'ShopName',
+                label: '취급점명',
+                value: infoData.ShopName
+            }
+        ];
+
+        const labelelements = this.detailGroup.selectAll('.detail-label')
+            .data(labels)
+            .join(
+                (enter) => enter.append('text').attr('class', 'detail-label'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('x', 90)
+            .attr('y', (d, i) => {
+                return i * 20 + 20;
+            })
+            .attr('width', 70)
+            .style('fill', '#314d7a')
+            .style('text-anchor', 'end')
+            .text((d) => {
+                return d.label;
+            });
+
+        this.detailGroup.selectAll('.detail-value')
+            .data(labels)
+            .join(
+                (enter) => enter.append('text').attr('class', 'detail-value'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('x', 100)
+            .attr('y', (d, i) => {
+                return i * 20 + 20;
+            })
+            .attr('width', 70)
+            .style('text-anchor', 'start')
+            .text((d) => {
+                let returnValue = '';
+                if (d.key === 'balance') {
+                    returnValue = this.numberFmt(d.value);
+                } else {
+                    returnValue = d.value;
+                }
+                return returnValue;
+            });
+    }
+
+    drawDetailInfo(d) {
+        const boxHeight = 110;
+        const boxWidth = 380;
+        this.detailGroup.attr('transform', `translate(${event.offsetX}, ${event.offsetY})`);
+        const background = this.detailGroup.selectAll('.detail-background')
+            .data(['rect'])
+            .join(
+                (enter) => enter.append('rect').attr('class', 'detail-background'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('width', boxWidth)
+            .attr('height', boxHeight)
+            .style('fill', '#a6c8ff')
+            .style('stroke', '#000')
+            .style('rx', 10)
+            .style('ry', 10);
+
+        const labels = [
+            {
+                key: 'name',
+                label: '이름',
+                value: d.name
+            },
+            {
+                key: 'accountNumber',
+                label: '계좌번호',
+                value: d.accountNumber
+            },
+            {
+                key: 'financialInstitution',
+                label: '금융기관',
+                value: d.financialInstitution
+            },
+            {
+                key: 'balance',
+                label: '잔금',
+                value: d.balance
+            }
+        ];
+
+        const labelelements = this.detailGroup.selectAll('.detail-label')
+            .data(labels)
+            .join(
+                (enter) => enter.append('text').attr('class', 'detail-label'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('x', 65)
+            .attr('y', (d, i) => {
+                return i * 20 + 20;
+            })
+            .attr('width', 70)
+            .style('fill', '#314d7a')
+            .style('text-anchor', 'end')
+            .text((d) => {
+                return d.label;
+            });
+        
+        this.detailGroup.selectAll('.detail-value')
+            .data(labels)
+            .join(
+                (enter) => enter.append('text').attr('class', 'detail-value'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('x', 80)
+            .attr('y', (d, i) => {
+                return i * 20 + 20;
+            })
+            .attr('width', 70)
+            .style('text-anchor', 'start')
+            .text((d) => {
+                let returnValue = '';
+                if (d.key === 'balance') {
+                    returnValue = this.numberFmt(d.value);
+                } else {
+                    returnValue = d.value;
+                }
+                return returnValue;
+            });
+
+        const accounts = links.filter((item) => {
+            if (item.source.id === d.id || item.target.id === d.id) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+
+        this.detailGroup.selectAll('.account-label')
+            .data(['label'])
+            .join(
+                (enter) => enter.append('text').attr('class', 'account-label'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('x', 65)
+            .attr('y', () => {
+                return (labels.length) * 20 + 20;
+            })
+            .attr('width', 70)
+            .style('fill', '#314d7a')
+            .style('text-anchor', 'end')
+            .text('거래내역');
+
+        const accountGroup = this.detailGroup.selectAll('.account-value-group')
+            .data(['label'])
+            .join(
+                (enter) => enter.append('g').attr('class', 'account-value-group'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('transform', `translate(80, ${(labels.length - 1) * 20 + 20})`);
+
+        accountGroup.selectAll('.account-value-type')
+            .data(accounts)
+            .join(
+                (enter) => enter.append('text').attr('class', 'account-value-type'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('x', 0)
+            .attr('y', (d, i) => {
+                return i * 20 + 20;
+            })
+            .attr('width', 150)
+            .style('fill', '#314d7a')
+            .text((d) => {
+                let returnValue = d.type;
+                // if (this.compare && (d.source.id === this.compare.id)) {
+                    
+                // } else {
+                //     if (d.type === '입금') {
+                //         returnValue = '출금';
+                //     } else {
+                //         returnValue = '입금'
+                //     }
+                // }
+                // console.log('returnValue : ', this.compare, d);
+                return returnValue;
+            });
+
+        accountGroup.selectAll('.account-value-number')
+            .data(accounts)
+            .join(
+                (enter) => enter.append('text').attr('class', 'account-value-number'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('x', 40)
+            .attr('y', (d, i) => {
+                return i * 20 + 20;
+            })
+            .attr('width', 150)
+            .style('fill', '#314d7a')
+            .text((d) => {
+                return d.target.accountNumber;
+            });
+
+        accountGroup.selectAll('.account-value-paid')
+            .data(accounts)
+            .join(
+                (enter) => enter.append('text').attr('class', 'account-value-paid'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
+            .attr('x', 180)
+            .attr('y', (d, i) => {
+                return i * 20 + 20;
+            })
+            .attr('width', 150)
+            .style('fill', '#314d7a')
+            .text((d) => {
+                return d.target.amountPaid > 0 ? d.target.amountPaid : d.target.amountDeposit;
+            });
+        
+        background.attr('height', boxHeight + (accounts.length - 1) * 20);
     }
 
     ticked() {
