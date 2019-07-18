@@ -29,7 +29,6 @@ export const excute = (doc, isMock = false) => {
         const linkData = [];
         originData = mock.slice(1);
         const nodeData = mock.slice(1).map((d, i) => {
-            // d.transactionCount = mock.filter(item => item.InAccountNumber === d.InAccountNumber).length;
             let targetItem = originData.find(item => item.OutAccountNumber === d.InAccountNumber);
             if (targetItem) {
                 if (d.AmountDeposit > 0) {
@@ -480,6 +479,11 @@ export class D3ForceLayoutDragComponent {
     }
 
     update(nodes, links) {
+        nodes.map(d => {
+            if (!d.TransactionCount) {
+                d.TransactionCount = nodes.filter(item => item.OutAccountNumber === d.OutAccountNumber || item.InAccountNumber === d.OutAccountNumber).length;
+            }
+        });
         const radius = 20;
         this.link = this.zoomTarget.selectAll('.link')
             .data(links)
@@ -504,13 +508,13 @@ export class D3ForceLayoutDragComponent {
                 const source = this.nodeData.find((item) => item.id === d.source);
                 let returnValue = 2;
                 // TODO: 5회이상 > 5회미만 > 1회
-                // if (source.transactionCount > 5) {
-                //     returnValue = 5;
-                // } else if (source.transactionCount < 5) {
-                //     returnValue = 4;
-                // } else if (source.transactionCount === 1) {
-                //     returnValue = 2;
-                // } 
+                if (source.TransactionCount > 5) {
+                    returnValue = 8;
+                } else if (source.TransactionCount < 5) {
+                    returnValue = 5;
+                } else if (source.TransactionCount === 1) {
+                    returnValue = 2;
+                } 
 
                 return returnValue;
             });
