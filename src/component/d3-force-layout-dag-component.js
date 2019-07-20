@@ -509,9 +509,9 @@ export class D3ForceLayoutDragComponent {
                 let returnValue = 2;
                 // TODO: 5회이상 > 5회미만 > 1회
                 if (source.TransactionCount > 5) {
-                    returnValue = 8;
+                    returnValue = 16;
                 } else if (source.TransactionCount < 5) {
-                    returnValue = 5;
+                    returnValue = 8;
                 } else if (source.TransactionCount === 1) {
                     returnValue = 2;
                 } 
@@ -605,11 +605,11 @@ export class D3ForceLayoutDragComponent {
                 let returnValue = radius;
                 const transactionAccount = parseInt(d.amountPaid) + parseInt(d.amountDeposit);
                 if (transactionAccount >= 100000000) {
-                    returnValue += 10;
+                    returnValue += 12;
                 } else if (transactionAccount < 50000000) {
                     
                 } else if (transactionAccount < 100000000) {
-                    returnValue += 5;
+                    returnValue += 6;
                 }
                 return returnValue;
             })
