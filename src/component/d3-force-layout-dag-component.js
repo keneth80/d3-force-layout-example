@@ -6,8 +6,8 @@ import { format } from 'd3-format';
 import { schemeCategory10 } from 'd3-scale-chromatic';
 import { csv } from 'd3-fetch';
 import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force';
-import { fromEvent, Observable } from 'rxjs';
-import { debounceTime, delay } from 'rxjs/operators';
+import { fromEvent, Observable, Subject } from 'rxjs';
+import { debounceTime, map, buffer, delay, filter } from 'rxjs/operators';
 
 export const excute = (doc, isMock = false) => {
     let originData = [];
@@ -131,9 +131,45 @@ export class D3ForceLayoutDragComponent {
 
         this.numberFmt = format(',d');
 
+        this.dbClick = new Subject();
+
+        const buff$ = this.dbClick.pipe(
+            debounceTime(250),
+        )
+
+        const doublicClick$ = this.dbClick.pipe(
+            buffer(buff$),
+            map(list => {
+                return list.length;
+            }),
+            filter(x => x === 2),
+        );
+
+        const oneClick$ = this.dbClick.pipe(
+            buffer(buff$),
+            map(list => {
+                return list.length;
+            }),
+            filter(x => x === 1),
+        );
+
+        // double click event
+        doublicClick$.subscribe(() => {
+            console.log('doubleclick : ', this.currentNode);
+        });
+
+        // one click event
+        oneClick$.subscribe(() => {
+            console.log('one click : ', this.currentNode);
+            this.drawAccountInformation(this.currentNode);
+        });
+
         // select node and link
         this.selectedNode = null;
         this.selectedLink = null;
+
+        //current node
+        this.currentNode = null;
 
         // force layout
         this.simulation = null; 
@@ -382,7 +418,7 @@ export class D3ForceLayoutDragComponent {
 
         this.svg.call(
             this.zoomObj
-        );
+        ).on('dblclick.zoom', null);
 
         // 도형 group
         this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
@@ -617,8 +653,8 @@ export class D3ForceLayoutDragComponent {
             .on('click', (d) => {
                 event.preventDefault();
                 event.stopPropagation();
-                // this.drawDetailInfo(d);
-                this.drawAccountInformation(d);
+                this.currentNode = d;
+                this.dbClick.next(d);
             });
 
         this.node.append('circle')
