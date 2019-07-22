@@ -489,6 +489,7 @@ export class D3ForceLayoutDragComponent {
 
     // node list만으로 링크정보를 생성하는 메서드
     updateOnlyNode(nodes) {
+
         this.nodeData = nodes;
         const links = [];
         this.nodeData.map((d, i) => {
@@ -522,8 +523,8 @@ export class D3ForceLayoutDragComponent {
         this.detailGroup.selectAll('*').remove();
         this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
         // this.simulation.alphaTarget(0.3).restart();
-        this.update(this.nodeData, this.linkData);
         setTimeout(() => {
+            this.update(this.nodeData, this.linkData);
             this.svg.node().appendChild(this.detailGroup.node());
         }, 500);
     }
