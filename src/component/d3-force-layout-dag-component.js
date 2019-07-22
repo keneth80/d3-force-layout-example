@@ -15,54 +15,54 @@ export const excute = (doc, isMock = false) => {
         const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData: [], linkData: []});
         if (doc) {
             doc.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
-            doc.d3ForceLayoutDragComponent.updateOnlyNode([
-                {
-                    AmountDeposit: 0,
-                    AmountPaid: 5555038000,
-                    Balance: 2498000,
-                    Bank: "중소기업은행",
-                    Briefs: "학원비",
-                    CurrencySeparation: "KRW",
-                    FinancialInstitution: "중소기업은행",
-                    ForeignCurrencyTransactionAmt: "0.00",
-                    InAccountNumber: "23144551728222",
-                    Name: "홍길동",
-                    NameNo: "8401271111222",
-                    OutAccountNumber: "99988877744433",
-                    ShopName: "애오개",
-                    TransactionChannel: "대체",
-                    TransactionCount: 27,
-                    TransactionDate: "2/1/19",
-                    TransactionMeans: "인터넷뱅킹",
-                    TransactionTime: "16:41:13",
-                    TransactionType: "입금",
-                    id: 1,
-                    index: 0
-                    },
-                    {
-                    AmountDeposit: 0,
-                    AmountPaid: 600000,
-                    Balance: 3200999222,
-                    Bank: "신한은행",
-                    Briefs: "이전비",
-                    CurrencySeparation: "KRW",
-                    FinancialInstitution: "한국은행",
-                    ForeignCurrencyTransactionAmt: "0.00",
-                    InAccountNumber: "99988877744433",
-                    Name: "김사기",
-                    NameNo: "1231231231100",
-                    OutAccountNumber: "772001119977220",
-                    ShopName: "본점",
-                    TransactionChannel: "대체",
-                    TransactionCount: 1,
-                    TransactionDate: "3/11/19",
-                    TransactionMeans: "창구",
-                    TransactionTime: "9:00:30",
-                    TransactionType: "출금",
-                    id: 2,
-                    index: 1
-                    }
-            ]);
+            // doc.d3ForceLayoutDragComponent.updateOnlyNode([
+            //     {
+            //         AmountDeposit: 0,
+            //         AmountPaid: 5555038000,
+            //         Balance: 2498000,
+            //         Bank: "중소기업은행",
+            //         Briefs: "학원비",
+            //         CurrencySeparation: "KRW",
+            //         FinancialInstitution: "중소기업은행",
+            //         ForeignCurrencyTransactionAmt: "0.00",
+            //         InAccountNumber: "23144551728222",
+            //         Name: "홍길동",
+            //         NameNo: "8401271111222",
+            //         OutAccountNumber: "99988877744433",
+            //         ShopName: "애오개",
+            //         TransactionChannel: "대체",
+            //         TransactionCount: 27,
+            //         TransactionDate: "2/1/19",
+            //         TransactionMeans: "인터넷뱅킹",
+            //         TransactionTime: "16:41:13",
+            //         TransactionType: "입금",
+            //         id: 1,
+            //         index: 0
+            //         },
+            //         {
+            //         AmountDeposit: 0,
+            //         AmountPaid: 600000,
+            //         Balance: 3200999222,
+            //         Bank: "신한은행",
+            //         Briefs: "이전비",
+            //         CurrencySeparation: "KRW",
+            //         FinancialInstitution: "한국은행",
+            //         ForeignCurrencyTransactionAmt: "0.00",
+            //         InAccountNumber: "99988877744433",
+            //         Name: "김사기",
+            //         NameNo: "1231231231100",
+            //         OutAccountNumber: "772001119977220",
+            //         ShopName: "본점",
+            //         TransactionChannel: "대체",
+            //         TransactionCount: 1,
+            //         TransactionDate: "3/11/19",
+            //         TransactionMeans: "창구",
+            //         TransactionTime: "9:00:30",
+            //         TransactionType: "출금",
+            //         id: 2,
+            //         index: 1
+            //         }
+            // ]);
         }
         return;
     }
