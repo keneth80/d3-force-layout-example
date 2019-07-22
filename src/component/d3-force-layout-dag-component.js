@@ -7,8 +7,8 @@ import { schemeCategory10 } from 'd3-scale-chromatic';
 import { csv } from 'd3-fetch';
 import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force';
 import { payments } from './data/mock-data';
-import { fromEvent } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { fromEvent, Observable } from 'rxjs';
+import { debounceTime, delay } from 'rxjs/operators';
 
 export const excute = (doc, isMock = false) => {
     let originData = [];
@@ -19,6 +19,7 @@ export const excute = (doc, isMock = false) => {
         }
         return;
     }
+
     csv('./component/data/mock-data.csv', (data, index) => {
         data.AmountDeposit = parseInt(data.AmountDeposit) || 0;
         data.AmountPaid = parseInt(data.AmountPaid) || 0;
@@ -27,8 +28,15 @@ export const excute = (doc, isMock = false) => {
         return data;
     }).then((mock) => {
         const linkData = [];
+        let nodeData = [];
+        const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData, linkData});
+        if (doc) {
+            doc.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
+        }
+        
+        // 맨 앞단은 컬럼명이 명시되어 있어 잘라낸다.
         originData = mock.slice(1);
-        const nodeData = mock.slice(1).map((d, i) => {
+        nodeData = originData.map((d, i) => {
             let targetItem = originData.find(item => item.OutAccountNumber === d.InAccountNumber);
             if (targetItem) {
                 if (d.AmountDeposit > 0) {
@@ -50,89 +58,9 @@ export const excute = (doc, isMock = false) => {
             return d;
         });
 
-        const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData, linkData});
-        if (doc) {
-            doc.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
-        }
+        doc.d3ForceLayoutDragComponent.updateData(nodeData, linkData);
         console.log('mock : ', nodeData, linkData);
     });
-    // const nodeData = payments;
-
-    // const linkData = [
-    //     {
-    //         source: 2,
-    //         target: 1,
-    //         type: '입금',
-    //         account: '5000000000'
-    //     },
-    //     {
-    //         source: 3,
-    //         target: 1,
-    //         type: '입금',
-    //         account: '320000000'
-    //     },
-    //     {
-    //         source: 4,
-    //         target: 1,
-    //         type: '출금',
-    //         account: '38000'
-    //     },
-    //     {
-    //         source: 1,
-    //         target: 5,
-    //         type: '출금',
-    //         account: '500000000'
-    //     },
-    //     {
-    //         source: 1,
-    //         target: 6,
-    //         type: '출금',
-    //         account: '430000000'
-    //     },
-    //     {
-    //         source: 1,
-    //         target: 7,
-    //         type: '출금',
-    //         account: '10000000'
-    //     },
-    //     {
-    //         source: 1,
-    //         target: 8,
-    //         type: '출금',
-    //         account: '9000000000'
-    //     },
-    //     {
-    //         source: 4,
-    //         target: 9,
-    //         type: '출금',
-    //         account: '600000'
-    //     },
-    //     {
-    //         source: 4,
-    //         target: 10,
-    //         type: '출금',
-    //         account: '8401110'
-    //     },
-    //     {
-    //         source: 11,
-    //         target: 2,
-    //         type: '출금',
-    //         account: '90000000'
-    //     },
-    //     {
-    //         source: 2,
-    //         target: 11,
-    //         type: '입금',
-    //         account: '2498000'
-    //     }
-    // ];
-
-    // const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData, linkData});
-    // if (doc) {
-    //     doc.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
-    // }
-
-    // console.log('nodeData : ', nodeData, linkData);
 };
 
 export class D3ForceLayoutDragComponent {
@@ -317,11 +245,12 @@ export class D3ForceLayoutDragComponent {
         this.svgWidth = parseFloat(this.svg.style('width'));
         this.svgHeight = parseFloat(this.svg.style('height'));
 
+        const forceLinkObj = forceLink().id((d) => {
+            return d.id;
+        }).iterations(5).distance(200).strength(1);
         // force layout setup
         this.simulation = forceSimulation()
-            .force('link', forceLink().id((d) => {
-                return d.id;
-            }).iterations(5).distance(200).strength(1))
+            .force('link', forceLinkObj)
             .force('box', () => {
                 for (let i = 0, n = this.nodeData.length; i < n; ++i) {
                     const curr_node = this.nodeData[i];
@@ -329,7 +258,7 @@ export class D3ForceLayoutDragComponent {
                     curr_node.y = Math.max(radius, Math.min(this.svgHeight - radius, curr_node.y));
                 }
             })
-            .force('charge', forceManyBody())
+            .force('charge', forceManyBody().strength(-200))
             .force('center', forceCenter(this.svgWidth / 2, this.svgHeight / 2));
 
         // zoom setup
@@ -379,10 +308,7 @@ export class D3ForceLayoutDragComponent {
 
     draw() {
         this.simulation.alphaTarget(0.3).restart();
-        setTimeout(() => {
-            this.update(this.nodeData, this.linkData);
-        }, 300)
-        
+        this.update(this.nodeData, this.linkData);
     }
 
     drawLegend() {
@@ -574,6 +500,7 @@ export class D3ForceLayoutDragComponent {
             .call(drag()
                     .on('start', (d) => {
                         this.detailGroup.selectAll('*').remove();
+                        // this.simulation.alphaTarget(0.3).restart();
                         // if (!event.active) this.simulation.alphaTarget(0.3).restart()
                         d.fx = d.x;
                         d.fy = d.y;
@@ -589,6 +516,7 @@ export class D3ForceLayoutDragComponent {
                     })
                     .on('end', () => {
                         this.isDrag = false;
+                        // this.simulation.alphaTarget(0);
                         this.simulation.alphaTarget(0.3).stop();
                     })
             )
@@ -617,19 +545,6 @@ export class D3ForceLayoutDragComponent {
             .style('stroke-width', 2)
             .style('fill', (d, i) => {
                 let color = '#68a1fc';
-                // if (d.transactionCount === 0) {
-
-                // } else if (d.transactionCount === 1) {
-                //     color = '#c8faf6';
-                // } else if (d.transactionCount === 2) {
-                //     color = '#68a1fc';
-                // } else if (d.transactionCount === 3) {
-                //     color = '#524dff';
-                // } else if (d.transactionCount === 4) {
-                //     color = '#fac13c';
-                // } else if (d.transactionCount > 4) {
-                //     color = '#ed743b';
-                // }
                 return color;
             });
 
@@ -645,15 +560,10 @@ export class D3ForceLayoutDragComponent {
             .style('font-size', 'small')
             .style('stroke', (d, i) => {
                 let color = '#000';
-                // if (d.transactionCount > 2) {
-                //     color = '#fff';
-                // }
                 return color;
-                // return this.colors(i);
             })
             .text((d) => {
                 return d.Name;
-                // return d.name + ':' + d.label;
             })
             .attr('dx', (d, i, nodeList) => {
                 const textWidth = select(nodeList[i]).node().getComputedTextLength();
@@ -669,9 +579,17 @@ export class D3ForceLayoutDragComponent {
         this.simulation.force('link')
             .links(links);
 
-        setTimeout(() => {
+         // 1회용 observable
+         const initialExcuteObserv = Observable.create((observer) => {
+            observer.next();
+            observer.complete();
+        });
+
+        initialExcuteObserv.pipe(
+            delay(2000)
+        ).subscribe(() => {
             this.simulation.stop();
-        }, 3000); 
+        });
     }
 
     drawAccountInformation(infoData) {
