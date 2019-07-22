@@ -20,22 +20,22 @@ export const excute = (doc, isMock = false) => {
             //         AmountDeposit: 0,
             //         AmountPaid: 5555038000,
             //         Balance: 2498000,
-            //         Bank: "중소기업은행",
-            //         Briefs: "학원비",
-            //         CurrencySeparation: "KRW",
-            //         FinancialInstitution: "중소기업은행",
-            //         ForeignCurrencyTransactionAmt: "0.00",
-            //         InAccountNumber: "23144551728222",
-            //         Name: "홍길동",
-            //         NameNo: "8401271111222",
-            //         OutAccountNumber: "99988877744433",
-            //         ShopName: "애오개",
-            //         TransactionChannel: "대체",
+            //         Bank: '중소기업은행',
+            //         Briefs: '학원비',
+            //         CurrencySeparation: 'KRW',
+            //         FinancialInstitution: '중소기업은행',
+            //         ForeignCurrencyTransactionAmt: '0.00',
+            //         InAccountNumber: '23144551728222',
+            //         Name: '홍길동',
+            //         NameNo: '8401271111222',
+            //         OutAccountNumber: '99988877744433',
+            //         ShopName: '애오개',
+            //         TransactionChannel: '대체',
             //         TransactionCount: 27,
-            //         TransactionDate: "2/1/19",
-            //         TransactionMeans: "인터넷뱅킹",
-            //         TransactionTime: "16:41:13",
-            //         TransactionType: "입금",
+            //         TransactionDate: '2/1/19',
+            //         TransactionMeans: '인터넷뱅킹',
+            //         TransactionTime: '16:41:13',
+            //         TransactionType: '입금',
             //         id: 1,
             //         index: 0
             //         },
@@ -43,22 +43,22 @@ export const excute = (doc, isMock = false) => {
             //         AmountDeposit: 0,
             //         AmountPaid: 600000,
             //         Balance: 3200999222,
-            //         Bank: "신한은행",
-            //         Briefs: "이전비",
-            //         CurrencySeparation: "KRW",
-            //         FinancialInstitution: "한국은행",
-            //         ForeignCurrencyTransactionAmt: "0.00",
-            //         InAccountNumber: "99988877744433",
-            //         Name: "김사기",
-            //         NameNo: "1231231231100",
-            //         OutAccountNumber: "772001119977220",
-            //         ShopName: "본점",
-            //         TransactionChannel: "대체",
+            //         Bank: '신한은행',
+            //         Briefs: '이전비',
+            //         CurrencySeparation: 'KRW',
+            //         FinancialInstitution: '한국은행',
+            //         ForeignCurrencyTransactionAmt: '0.00',
+            //         InAccountNumber: '99988877744433',
+            //         Name: '김사기',
+            //         NameNo: '1231231231100',
+            //         OutAccountNumber: '772001119977220',
+            //         ShopName: '본점',
+            //         TransactionChannel: '대체',
             //         TransactionCount: 1,
-            //         TransactionDate: "3/11/19",
-            //         TransactionMeans: "창구",
-            //         TransactionTime: "9:00:30",
-            //         TransactionType: "출금",
+            //         TransactionDate: '3/11/19',
+            //         TransactionMeans: '창구',
+            //         TransactionTime: '9:00:30',
+            //         TransactionType: '출금',
             //         id: 2,
             //         index: 1
             //         }
@@ -131,6 +131,10 @@ export class D3ForceLayoutDragComponent {
 
         this.numberFmt = format(',d');
 
+        // select node and link
+        this.selectedNode = null;
+        this.selectedLink = null;
+
         // force layout
         this.simulation = null; 
 
@@ -152,7 +156,7 @@ export class D3ForceLayoutDragComponent {
         // 시연 테스트를 위함 기준 거래자명
         this.compare = null;
 
-        // legend data
+        // 입출금 색상
         this.accountInOutData = [
             {
                 label: '입금',
@@ -161,29 +165,6 @@ export class D3ForceLayoutDragComponent {
             {
                 label: '출금',
                 color: '#f74a4a'
-            }
-        ];
-
-        this.transactionCountData = [
-            {
-                label: '거래횟수 1',
-                color: '#c8faf6'
-            },
-            {
-                label: '거래횟수 2',
-                color: '#68a1fc'
-            },
-            {
-                label: '거래횟수 3',
-                color: '#524dff'
-            },
-            {
-                label: '거래횟수 4',
-                color: '#fac13c'
-            },
-            {
-                label: '거래횟수 5건 이상',
-                color: '#ed743b'
             }
         ];
 
@@ -221,47 +202,128 @@ export class D3ForceLayoutDragComponent {
                 });
 
         const defs = this.svg.append('defs');
-        defs.append('marker')
-            .attr('id', 'arrowhead')
-            .attr('viewBox', '-0 -5 10 10')
-            .attr('refX', 29)
-            .attr('refY', 0)
-            .attr('orient', 'auto')
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
-            .attr('xoverflow', 'visible')
-            .append('svg:path')
-            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-            .attr('fill', '#999')
-            .style('stroke','none');
 
         defs.append('marker')
-            .attr('id', 'arrowheadIn')
-            .attr('viewBox', '-0 -5 10 10')
-            .attr('refX', 29)
+            .attr('id', 'arrowEnd')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', 16)
             .attr('refY', 0)
+            .attr('markerWidth', 3)
+            .attr('markerHeight', 3)
             .attr('orient', 'auto')
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
-            .attr('xoverflow', 'visible')
             .append('svg:path')
-            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-            .attr('fill', this.accountInOutData[0].color)
-            .style('stroke','none');
+                .attr('d', 'M0,-5L10,0L0,5')
+                .attr('fill', this.accountInOutData[0].color)
+                .style('stroke','none');
 
         defs.append('marker')
-            .attr('id', 'arrowheadOut')
-            .attr('viewBox', '-0 -5 10 10')
-            .attr('refX', 29)
+            .attr('id', 'arrowStart')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', -6)
             .attr('refY', 0)
+            .attr('markerWidth', 3)
+            .attr('markerHeight', 3)    
             .attr('orient', 'auto')
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
-            .attr('xoverflow', 'visible')
+            .append('path')
+            .attr('d', 'M0,0L10,-5L10,5')
+                .attr('fill', this.accountInOutData[1].color)
+                .style('stroke','none');
+
+        // stroke width: 2
+        defs.append('marker')
+            .attr('id', 'arrowEnd-2')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', 15)
+            .attr('refY', -1.5)
+            .attr('markerWidth', 3)
+            .attr('markerHeight', 3)
+            .attr('orient', 'auto')
             .append('svg:path')
-            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-            .attr('fill', this.accountInOutData[1].color)
-            .style('stroke','none');
+                .attr('d', 'M0,-5L10,0L0,5')
+                .attr('fill', this.accountInOutData[0].color)
+                .style('stroke','none');
+
+        defs.append('marker')
+            .attr('id', 'arrowStart-2')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', -5)
+            .attr('refY', 0)
+            .attr('markerWidth', 3)
+            .attr('markerHeight', 3)    
+            .attr('orient', 'auto')
+            .append('path')
+            .attr('d', 'M0,0L10,-5L10,5')
+                .attr('fill', this.accountInOutData[1].color)
+                .style('stroke','none');
+
+        // stroke width: 8
+        defs.append('marker')
+            .attr('id', 'arrowEnd-8')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', 16)
+            .attr('refY', 0)
+            .attr('markerWidth', 3)
+            .attr('markerHeight', 3)
+            .attr('orient', 'auto')
+            .append('svg:path')
+                .attr('d', 'M0,-5L10,0L0,5')
+                .attr('fill', this.accountInOutData[0].color)
+                .style('stroke','none');
+
+        defs.append('marker')
+            .attr('id', 'arrowStart-8')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', -6)
+            .attr('refY', 0)
+            .attr('markerWidth', 3)
+            .attr('markerHeight', 3)    
+            .attr('orient', 'auto')
+            .append('path')
+            .attr('d', 'M0,0L10,-5L10,5')
+                .attr('fill', this.accountInOutData[1].color)
+                .style('stroke','none');
+
+        // stroke width: 16
+        defs.append('marker')
+            .attr('id', 'arrowEnd-16')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', 15)
+            .attr('refY', 0)
+            .attr('markerWidth', 3)
+            .attr('markerHeight', 3)
+            .attr('orient', 'auto')
+            .append('svg:path')
+                .attr('d', 'M0,-5L10,0L0,5')
+                .attr('fill', this.accountInOutData[0].color)
+                .style('stroke','none');
+
+        defs.append('marker')
+            .attr('id', 'arrowStart-16')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', -1)
+            .attr('refY', 0)
+            .attr('markerWidth', 3)
+            .attr('markerHeight', 3)    
+            .attr('orient', 'auto')
+            .append('path')
+            .attr('d', 'M0,0L10,-5L10,5')
+                .attr('fill', this.accountInOutData[1].color)
+                .style('stroke','none');
+            
+
+        // defs.append('marker')
+        //     .attr('id', 'arrowheadOut')
+        //     .attr('viewBox', '-0 -5 10 10')
+        //     .attr('refX', 29)
+        //     .attr('refY', 0)
+        //     .attr('orient', 'auto')
+        //     .attr('markerWidth', 6)
+        //     .attr('markerHeight', 6)
+        //     .attr('xoverflow', 'visible')
+        //     .append('svg:path')
+        //     .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+        //     .attr('fill', this.accountInOutData[1].color)
+        //     .style('stroke','none');
 
         const dropShadowFilter = defs.append('svg:filter')
             .attr('id', 'dropshadow')
@@ -344,10 +406,6 @@ export class D3ForceLayoutDragComponent {
             this.svgWidth = parseInt(this.svg.style('width'));
             this.svgHeight = parseInt(this.svg.style('height'));
 
-            // this.legendGroup.attr('transform', () => {
-            //     return 'translate(' + (this.svgWidth - 200) + ', 0)';
-            // });
-
             this.detailGroup.attr('transform', `translate(${this.svgWidth - 250}, 0)`);
         });
     }
@@ -355,83 +413,6 @@ export class D3ForceLayoutDragComponent {
     draw() {
         this.simulation.alphaTarget(0.3).restart();
         this.update(this.nodeData, this.linkData);
-    }
-
-    drawLegend() {
-        const accountInOutGroup = this.legendGroup.append('g')
-            .attr('class', 'account-inout-group')
-            .attr('transform', () => {
-                return 'translate(0, 0)';
-            });
-
-        accountInOutGroup.append('rect')
-            .attr('width', 200)
-            // .attr('height', 70)
-            .attr('height', 270)
-            .style('fill', '#bababa')
-            .style('stroke', '#000')
-            .style('stroke-width', 2);
-
-        accountInOutGroup.selectAll('.account-rect').data(this.accountInOutData)
-            .enter().append('rect')
-                .attr('width', 25)
-                .attr('height', 3)
-                .attr('y', (d, i) => {
-                    return i * 30 + ((i + 1) * 5) + 10;
-                })
-                .attr('x', 5)
-                .style('fill', (d) => {
-                    return d.color;
-                });
-
-        accountInOutGroup.selectAll('.account-label').data(this.accountInOutData)
-            .enter().append('text')
-                .attr('transform', (d, i) => {
-                    return `translate(35, ${i * 30 + ((i + 1) * 5) + 16})`;
-                })
-                .text((d) => {
-                    return d.label;
-                });
-
-        const transactionGroup = this.legendGroup.append('g')
-            .attr('class', 'transaction-group')
-            .attr('transform', () => {
-                return 'translate(0, 80)';
-            });
-
-        transactionGroup.selectAll('.transaction-circle').data(this.transactionAmountData)
-            .enter().append('circle')
-                .attr('r', (d) => {
-                    return d.radius;
-                })
-                .attr('transform', (d, i) => {
-                    let returnY = d.radius;
-                    if (i === 1) {
-                        returnY = 100;
-                    } else if (i === 2) {
-                        returnY = 155;
-                    }
-                    return `translate(${d.radius + (35 - d.radius)}, ${returnY})`;
-                })
-                .attr('filter', 'url(#dropshadow)')
-                .style('stroke', '#fff')
-                .style('stroke-width', 2)
-                .style('fill', '#68a1fc');
-
-        transactionGroup.selectAll('.transaction-label').data(this.transactionAmountData)
-            .enter().append('text')
-                .attr('transform', (d, i) => {
-                    let returnY = d.radius;
-                    if (i === 1) {
-                        returnY = 100;
-                    } else if (i === 2) {
-                        returnY = 155;
-                    }
-                    return `translate(80, ${returnY + 5})`;
-                })
-                .text((d) => {
-                    return d.label;
-                });
     }
 
     // node list만으로 링크정보를 생성하는 메서드
@@ -503,15 +484,40 @@ export class D3ForceLayoutDragComponent {
             .append('line')
             .attr('class', 'link')
             // .attr('marker-end','url(#arrowhead)')
-            // .attr('marker-end', (d) => {
-            //     let returnValue = 'url(#arrowhead)';
-            //     if (d.type === '출금') {
-            //         returnValue = 'url(#arrowheadOut)';
-            //     } else {
-            //         returnValue = 'url(#arrowheadIn)';
-            //     }
-            //     return returnValue;
-            // })
+            .attr('marker-start', (d) => {
+                const source = this.nodeData.find((item) => item.id === d.source);
+                let transactionCount = 2;
+                // TODO: 5회이상 > 5회미만 > 1회
+                if (source.TransactionCount > 5) {
+                    transactionCount = 16;
+                } else if (source.TransactionCount < 5) {
+                    transactionCount = 8;
+                } else if (source.TransactionCount === 1) {
+                    transactionCount = 2;
+                }
+                let returnValue = '';
+                if (d.type === '출금') {
+                    returnValue = `url(#arrowStart-${transactionCount})`;
+                }
+                return returnValue;
+            })
+            .attr('marker-end', (d) => {
+                const source = this.nodeData.find((item) => item.id === d.source);
+                let transactionCount = 2;
+                // TODO: 5회이상 > 5회미만 > 1회
+                if (source.TransactionCount > 5) {
+                    transactionCount = 16;
+                } else if (source.TransactionCount < 5) {
+                    transactionCount = 8;
+                } else if (source.TransactionCount === 1) {
+                    transactionCount = 2;
+                }
+                let returnValue = '';
+                if (d.type === '입금') {
+                    returnValue = `url(#arrowEnd-${transactionCount})`;
+                }
+                return returnValue;
+            })
             .style('stroke', (d) => {
                 let color = this.accountInOutData.find((item) => item.label === d.type).color;
                 return color;
@@ -586,24 +592,26 @@ export class D3ForceLayoutDragComponent {
             .call(drag()
                     .on('start', (d) => {
                         this.detailGroup.selectAll('*').remove();
-                        // this.simulation.alphaTarget(0.3).restart();
-                        // if (!event.active) this.simulation.alphaTarget(0.3).restart()
+
                         d.fx = d.x;
                         d.fy = d.y;
+                        d.fixed = true;
+
+                        this.selectedLink = this.link.filter((link) => {
+                            return link.source.id === d.id || link.target.id === d.id;
+                        });
+                
+                        this.selectedNode = this.node.filter((node) => node.id === d.id);
                     })
                     .on('drag', (d) => {
-                        if (!this.isDrag) {
-                            this.simulation.alphaTarget(0.3).restart();
-                            this.isDrag = true;
-                        }
-
-                        d.fx = Math.max(radius, Math.min(this.svgWidth - radius, event.x));
-                        d.fy = Math.max(radius, Math.min(this.svgHeight - radius, event.y));
+                        d.x = d.fx = Math.max(radius, Math.min(this.svgWidth - radius, event.x));
+                        d.y = d.fy = Math.max(radius, Math.min(this.svgHeight - radius, event.y)); 
+                        this.oneTicked();
                     })
                     .on('end', () => {
                         this.isDrag = false;
-                        // this.simulation.alphaTarget(0);
-                        this.simulation.alphaTarget(0.3).stop();
+                        this.selectedLink = null;
+                        this.selectedNode = null;
                     })
             )
             .on('click', (d) => {
@@ -679,7 +687,7 @@ export class D3ForceLayoutDragComponent {
     }
 
     drawAccountInformation(infoData) {
-        const boxHeight = 290;
+        const boxHeight = 260;
         const boxWidth = 250;
         this.detailGroup.attr('transform', `translate(${this.svgWidth - boxWidth}, 0)`);
         const background = this.detailGroup.selectAll('.detail-background')
@@ -717,16 +725,16 @@ export class D3ForceLayoutDragComponent {
                 label: '계좌번호',
                 value: infoData.OutAccountNumber
             },
-            {
-                key: 'TransactionDate',
-                label: '거래일자',
-                value: infoData.TransactionDate
-            },
-            {
-                key: 'TransactionTime',
-                label: '거래시각',
-                value: infoData.TransactionTime
-            },
+            // {
+            //     key: 'TransactionDate',
+            //     label: '거래일자',
+            //     value: infoData.TransactionDate
+            // },
+            // {
+            //     key: 'TransactionTime',
+            //     label: '거래시각',
+            //     value: infoData.TransactionTime
+            // },
             {
                 key: 'TransactionType',
                 label: '거래종류명',
@@ -776,7 +784,7 @@ export class D3ForceLayoutDragComponent {
                 (update) => update,
                 (exit) => exit.remove()
             )
-            .attr('x', 90)
+            .attr('x', 100)
             .attr('y', (d, i) => {
                 return i * 20 + 20;
             })
@@ -794,7 +802,7 @@ export class D3ForceLayoutDragComponent {
                 (update) => update,
                 (exit) => exit.remove()
             )
-            .attr('x', 100)
+            .attr('x', 110)
             .attr('y', (d, i) => {
                 return i * 20 + 20;
             })
@@ -989,6 +997,46 @@ export class D3ForceLayoutDragComponent {
             });
         
         background.attr('height', boxHeight + (accounts.length - 1) * 20);
+    }
+
+    oneTicked() {
+        if (this.selectedLink) {
+            this.selectedLink
+                .attr('x1', (d) => {
+                    return d.source.x;
+                })
+                .attr('y1', (d) => {
+                    return d.source.y;
+                })
+                .attr('x2', (d) => {
+                    return d.target.x;
+                })
+                .attr('y2', (d) => {
+                    return d.target.y;
+                });
+        }
+
+        if (this.selectedNode) {
+            this.selectedNode.attr('transform', (d) => {
+                return 'translate(' + d.x + ', ' +  d.y + ')';
+            });
+        }
+
+        this.edgepaths.attr('d', (d) => {
+            return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+        });
+
+        this.edgelabels.attr('transform', (d, i, nodeList) => {
+            if (d.target.x < d.source.x) {
+                const bbox = select(nodeList[i]).node().getBBox();
+
+                const rx = bbox.x + bbox.width / 2;
+                const ry = bbox.y + bbox.height / 2;
+                return 'rotate(180 ' + rx + ' ' + ry + ')';
+            } else {
+                return 'rotate(0)';
+            }
+        });
     }
 
     ticked() {
