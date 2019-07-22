@@ -12,6 +12,56 @@ import { debounceTime, map, buffer, delay, filter } from 'rxjs/operators';
 export const excute = (doc, isMock = false) => {
     let originData = [];
     if (!isMock) {
+        // select('#add_btn').on('click', () => {
+        //     doc.d3ForceLayoutDragComponent.addData([
+        //         {
+        //             AmountDeposit: 0,
+        //             AmountPaid: 5555038000,
+        //             Balance: 2498000,
+        //             Bank: '중소기업은행',
+        //             Briefs: '학원비',
+        //             CurrencySeparation: 'KRW',
+        //             FinancialInstitution: '중소기업은행',
+        //             ForeignCurrencyTransactionAmt: '0.00',
+        //             InAccountNumber: '23144551728222',
+        //             Name: '나나비',
+        //             NameNo: '8401271111222',
+        //             OutAccountNumber: '99988877744433',
+        //             ShopName: '애오개',
+        //             TransactionChannel: '대체',
+        //             TransactionCount: 27,
+        //             TransactionDate: '2/1/19',
+        //             TransactionMeans: '인터넷뱅킹',
+        //             TransactionTime: '16:41:13',
+        //             TransactionType: '입금',
+        //             id: 2,
+        //             index: 0
+        //             },
+        //             {
+        //             AmountDeposit: 0,
+        //             AmountPaid: 600000,
+        //             Balance: 3200999222,
+        //             Bank: '신한은행',
+        //             Briefs: '이전비',
+        //             CurrencySeparation: 'KRW',
+        //             FinancialInstitution: '한국은행',
+        //             ForeignCurrencyTransactionAmt: '0.00',
+        //             InAccountNumber: '99988877744433',
+        //             Name: '김사랑',
+        //             NameNo: '1231231231100',
+        //             OutAccountNumber: '772001119977220',
+        //             ShopName: '본점',
+        //             TransactionChannel: '대체',
+        //             TransactionCount: 1,
+        //             TransactionDate: '3/11/19',
+        //             TransactionMeans: '창구',
+        //             TransactionTime: '9:00:30',
+        //             TransactionType: '출금',
+        //             id: 3,
+        //             index: 1
+        //             }
+        //     ]);
+        // })
         const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData: [], linkData: []});
         if (doc) {
             doc.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
@@ -183,8 +233,6 @@ export class D3ForceLayoutDragComponent {
         // transform 현상태를 저장 
         this.currentTransform = null;
 
-        this.legendGroup = null;
-
         this.detailGroup = null;
 
         this.isDrag = false;
@@ -345,21 +393,6 @@ export class D3ForceLayoutDragComponent {
             .attr('d', 'M0,0L10,-5L10,5')
                 .attr('fill', this.accountInOutData[1].color)
                 .style('stroke','none');
-            
-
-        // defs.append('marker')
-        //     .attr('id', 'arrowheadOut')
-        //     .attr('viewBox', '-0 -5 10 10')
-        //     .attr('refX', 29)
-        //     .attr('refY', 0)
-        //     .attr('orient', 'auto')
-        //     .attr('markerWidth', 6)
-        //     .attr('markerHeight', 6)
-        //     .attr('xoverflow', 'visible')
-        //     .append('svg:path')
-        //     .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-        //     .attr('fill', this.accountInOutData[1].color)
-        //     .style('stroke','none');
 
         const dropShadowFilter = defs.append('svg:filter')
             .attr('id', 'dropshadow')
@@ -389,9 +422,11 @@ export class D3ForceLayoutDragComponent {
         this.svgWidth = parseFloat(this.svg.style('width'));
         this.svgHeight = parseFloat(this.svg.style('height'));
 
+        // force link setup
         const forceLinkObj = forceLink().id((d) => {
             return d.id;
         }).iterations(5).distance(200).strength(1);
+
         // force layout setup
         this.simulation = forceSimulation()
             .force('link', forceLinkObj)
@@ -416,6 +451,7 @@ export class D3ForceLayoutDragComponent {
                 this.zoomTarget.attr('transform', this.currentTransform);
             });
 
+        // 바깥쪽 더블클릭 방지.
         this.svg.call(
             this.zoomObj
         ).on('dblclick.zoom', null);
@@ -423,18 +459,12 @@ export class D3ForceLayoutDragComponent {
         // 도형 group
         this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
 
-        // legend group
-        this.legendGroup = this.svg.append('g')
-            .attr('class', 'legend-group')
-            .attr('transform', (d) => {
-                return 'translate(' + (this.svgWidth - 200) + ', 0)';
-            });
-
         // detail group
         this.detailGroup = this.svg.append('g')
             .attr('class', 'detail-group')
             .attr('filter', 'url(#dropshadow)');
 
+        // resize handler
         const resizeEvent = fromEvent(window, 'resize').pipe(debounceTime(500));
         resizeEvent.subscribe(() => {
             if (!this.svg) return;
@@ -447,7 +477,8 @@ export class D3ForceLayoutDragComponent {
     }
 
     draw() {
-        this.simulation.alphaTarget(0.3).restart();
+        // this.simulation.alphaTarget(0.3).restart();
+        // TODO: 선택한 데이터가 없기 때문에 첫번째 데이터를 기준점으로 셋팅. 우선 테스트를 위함. 
         this.update(this.nodeData, this.linkData);
     }
 
@@ -483,12 +514,18 @@ export class D3ForceLayoutDragComponent {
         this.zoomTarget.remove();
         this.detailGroup.selectAll('*').remove();
         this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
-        this.simulation.alphaTarget(0.3).restart();
+        // this.simulation.alphaTarget(0.3).restart();
         this.update(this.nodeData, this.linkData);
         setTimeout(() => {
-            this.svg.node().appendChild(this.legendGroup.node());
             this.svg.node().appendChild(this.detailGroup.node());
         }, 500);
+    }
+
+    addData(nodes) {
+        this.simulation.alphaTarget(0.3).restart();
+        this.nodeData = this.nodeData.concat(nodes);
+        console.log('addData : ', this.nodeData, nodes);
+        this.updateOnlyNode(this.nodeData);
     }
 
     updateData(nodes, links, compare) {
@@ -498,10 +535,9 @@ export class D3ForceLayoutDragComponent {
         this.zoomTarget.remove();
         this.detailGroup.selectAll('*').remove();
         this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
-        this.simulation.alphaTarget(0.3).restart();
+        // this.simulation.alphaTarget(0.3).restart();
         this.update(nodes, links);
         setTimeout(() => {
-            this.svg.node().appendChild(this.legendGroup.node());
             this.svg.node().appendChild(this.detailGroup.node());
         }, 500);
         
@@ -514,11 +550,14 @@ export class D3ForceLayoutDragComponent {
             }
         });
         const radius = 20;
+
         this.link = this.zoomTarget.selectAll('.link')
             .data(links)
-            .enter()
-            .append('line')
-            .attr('class', 'link')
+            .join(
+                (enter) => enter.append('line').attr('class', 'link'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
             // .attr('marker-end','url(#arrowhead)')
             .attr('marker-start', (d) => {
                 const source = this.nodeData.find((item) => item.id === d.source);
@@ -573,16 +612,18 @@ export class D3ForceLayoutDragComponent {
                 return returnValue;
             });
             
-        this.link.append('title')
-            .text((d) => {
-                return d.type;
-            });
+        // this.link.append('title')
+        //     .text((d) => {
+        //         return d.type;
+        //     });
 
         this.edgepaths = this.zoomTarget.selectAll('.edgepath')
             .data(links)
-            .enter()
-            .append('path')
-            .attr('class', 'edgepath')
+            .join(
+                (enter) => enter.append('path').attr('class', 'edgepath'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
             .attr('fill-opacity', 0)
             .attr('stroke-opacity', 0)
             .attr('id', (d, i) => {
@@ -592,10 +633,12 @@ export class D3ForceLayoutDragComponent {
 
         this.edgelabels = this.zoomTarget.selectAll('.edgelabel')
             .data(links)
-            .enter()
-            .append('text')
+            .join(
+                (enter) => enter.append('text').attr('class', 'edgelabel'),
+                (update) => update.selectAll('textPath').remove(),
+                (exit) => exit.remove()
+            )
             .style('pointer-events', 'none')
-            .attr('class', 'edgelabel')
             .attr('id', (d, i) => {
                 return 'edgelabel' + i
             })
@@ -616,14 +659,15 @@ export class D3ForceLayoutDragComponent {
             .attr('startOffset', '50%')
             .text((d) => {
                 return this.numberFmt(d.account);
-                // return d.type + ':' + d.account;
             });
 
         this.node = this.zoomTarget.selectAll('.node')
             .data(nodes)
-            .enter()
-            .append('g')
-            .attr('class', 'node')
+            .join(
+                (enter) => enter.append('g').attr('class', 'node'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
             .attr('filter', 'url(#dropshadow)')
             .call(drag()
                     .on('start', (d) => {
@@ -657,7 +701,13 @@ export class D3ForceLayoutDragComponent {
                 this.dbClick.next(d);
             });
 
-        this.node.append('circle')
+        this.node.selectAll('circle')
+            .data((d) => [d])
+            .join(
+                (enter) => enter.append('circle'),
+                (update) => update.selectAll('text').remove(),
+                (exit) => exit.remove()
+            )
             .attr('r', (d) => {
                 // TODO: 거래총액 1억이상 > 1억미만 > 5천만원 미만
                 let returnValue = radius;
@@ -678,10 +728,10 @@ export class D3ForceLayoutDragComponent {
                 return color;
             });
 
-        this.node.append('title')
-            .text((d) => {
-                return d.id;
-            });
+        // this.node.append('title')
+        //     .text((d) => {
+        //         return d.id;
+        //     });
 
         this.node.append('text')
             .attr('dy', () => {
