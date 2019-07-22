@@ -379,6 +379,10 @@ export class D3ForceLayoutDragComponent {
 
     draw() {
         this.simulation.alphaTarget(0.3).restart();
+        // this.simulation.stop();
+        // while (this.simulation.alpha() > this.simulation.alphaMin()) {
+        //     this.simulation.tick();
+        // }
         setTimeout(() => {
             this.update(this.nodeData, this.linkData);
         }, 300)
@@ -508,11 +512,11 @@ export class D3ForceLayoutDragComponent {
                 const source = this.nodeData.find((item) => item.id === d.source);
                 let returnValue = 2;
                 // TODO: 5회이상 > 5회미만 > 1회
-                if (source.TransactionCount > 5) {
+                if (source && source.TransactionCount > 5) {
                     returnValue = 16;
-                } else if (source.TransactionCount < 5) {
+                } else if (source && source.TransactionCount < 5) {
                     returnValue = 8;
-                } else if (source.TransactionCount === 1) {
+                } else if (source && source.TransactionCount === 1) {
                     returnValue = 2;
                 } 
 
