@@ -492,7 +492,9 @@ export class D3ForceLayoutDragComponent {
         this.nodeData = nodes;
         const links = [];
         this.nodeData.map((d, i) => {
-            d.id = i;
+            if (!d.id) {
+                d.id = +i;
+            }
         });
         this.nodeData.map((d, i) => {
             let targetItem = this.nodeData.find(item => item.OutAccountNumber === d.InAccountNumber);
@@ -536,6 +538,11 @@ export class D3ForceLayoutDragComponent {
     updateData(nodes, links, compare) {
         this.compare = compare
         this.nodeData = nodes;
+        this.nodeData.map((d, i) => {
+            if (!d.id) {
+                d.id = i;
+            }
+        });
         this.linkData = links;
         this.zoomTarget.remove();
         this.detailGroup.selectAll('*').remove();
@@ -549,7 +556,7 @@ export class D3ForceLayoutDragComponent {
     }
 
     update(nodes, links) {
-        nodes.map(d => {
+        nodes.map((d, i) => {
             if (!d.TransactionCount) {
                 d.TransactionCount = nodes.filter(item => item.OutAccountNumber === d.OutAccountNumber || item.InAccountNumber === d.OutAccountNumber).length;
             }
