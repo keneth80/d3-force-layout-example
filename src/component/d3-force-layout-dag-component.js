@@ -568,8 +568,40 @@ export class D3ForceLayoutDragComponent {
         this.link = this.zoomTarget.selectAll('.link')
             .data(links)
             .join(
-                (enter) => enter.append('line').attr('class', 'link'),
-                (update) => update,
+                (enter) => enter.append('line').attr('class', (d) => {
+                    const source = this.nodeData.find((item) => item.id === d.source);
+                    let returnValue = 2;
+                    // TODO: 5회이상 > 5회미만 > 1회
+                    if (source && source.TransactionCount > 5) {
+                        returnValue = 16;
+                    } else if (source && source.TransactionCount < 5) {
+                        returnValue = 8;
+                    } else if (source && source.TransactionCount === 1) {
+                        returnValue = 2;
+                    }
+                    let acountType = 'out';
+                    if (d.type === '입금') {
+                        acountType = 'in';
+                    }
+                    return 'link' + ' px' + returnValue + ' ' + acountType;
+                }),
+                (update) => update.attr('class', (d) => {
+                    const source = this.nodeData.find((item) => item.id === d.source);
+                    let returnValue = 2;
+                    // TODO: 5회이상 > 5회미만 > 1회
+                    if (source && source.TransactionCount > 5) {
+                        returnValue = 16;
+                    } else if (source && source.TransactionCount < 5) {
+                        returnValue = 8;
+                    } else if (source && source.TransactionCount === 1) {
+                        returnValue = 2;
+                    }
+                    let acountType = 'out';
+                    if (d.type === '입금') {
+                        acountType = 'in';
+                    }
+                    return 'link' + ' px' + returnValue + ' ' + acountType;
+                }),
                 (exit) => exit.remove()
             )
             // .attr('marker-end','url(#arrowhead)')
@@ -624,7 +656,8 @@ export class D3ForceLayoutDragComponent {
                 } 
 
                 return returnValue;
-            });
+            })
+            ;
             
         // this.link.append('title')
         //     .text((d) => {

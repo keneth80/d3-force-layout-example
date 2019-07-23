@@ -17,3 +17,39 @@ svg {
     stroke-opacity: 1; 
     stroke-width: 2px; 
 }
+
+.link.px2.in { 
+    stroke: #364af7; 
+    stroke-opacity: 1; 
+    stroke-width: 2px; 
+}
+
+.link.px8.in { 
+    stroke: #364af7;
+    stroke-opacity: 1; 
+    stroke-width: 8px; 
+}
+
+.link.px16.in { 
+    stroke: #364af7;
+    stroke-opacity: 1; 
+    stroke-width: 16px; 
+}
+
+.link.px2.out { 
+    stroke: #f74a4a;
+    stroke-opacity: 1; 
+    stroke-width: 2px; 
+}
+
+.link.px8.out { 
+    stroke: #f74a4a;
+    stroke-opacity: 1; 
+    stroke-width: 8px; 
+}
+
+.link.px16.out { 
+    stroke: #f74a4a;
+    stroke-opacity: 1; 
+    stroke-width: 16px; 
+}
