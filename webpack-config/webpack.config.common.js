@@ -8,6 +8,10 @@ const helpers = require('./helpers');
  
 module.exports = {
     entry: ['@babel/polyfill', './src'],
+    output: {
+        filename: '[name].[hash].js',
+        chunkFilename: '[name].[hash].js'
+    },
     resolve: {
         extensions: ['.js', '.ts']
     },
