@@ -519,9 +519,9 @@ export class D3ForceLayoutDragComponent {
             return d;
         });
         this.linkData = links;
-        this.zoomTarget.remove();
+        // this.zoomTarget.remove();
         this.detailGroup.selectAll('*').remove();
-        this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
+        // this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
         this.simulation.alphaTarget(0.3).restart();
         setTimeout(() => {
             this.update(this.nodeData, this.linkData);
@@ -544,9 +544,11 @@ export class D3ForceLayoutDragComponent {
             }
         });
         this.linkData = links;
-        this.zoomTarget.remove();
+        // this.zoomTarget.remove();
         this.detailGroup.selectAll('*').remove();
-        this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
+        // this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
+        this.zoomTarget.selectAll('*').remove();
+
         // this.simulation.alphaTarget(0.3).restart();
         this.update(nodes, links);
         setTimeout(() => {
