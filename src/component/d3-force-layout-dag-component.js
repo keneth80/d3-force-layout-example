@@ -425,7 +425,7 @@ export class D3ForceLayoutDragComponent {
         // force link setup
         const forceLinkObj = forceLink().id((d) => {
             return d.id;
-        }).iterations(5).distance(200).strength(1);
+        }).distance(200).strength(1);
 
         // force layout setup
         this.simulation = forceSimulation()
@@ -522,17 +522,16 @@ export class D3ForceLayoutDragComponent {
         this.zoomTarget.remove();
         this.detailGroup.selectAll('*').remove();
         this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
-        // this.simulation.alphaTarget(0.3).restart();
+        this.simulation.alphaTarget(0.3).restart();
         setTimeout(() => {
             this.update(this.nodeData, this.linkData);
             this.svg.node().appendChild(this.detailGroup.node());
-        }, 500);
+        }, 600);
     }
 
     addData(nodes) {
         this.simulation.alphaTarget(0.3).restart();
         this.nodeData = this.nodeData.concat(nodes);
-        console.log('addData : ', this.nodeData, nodes);
         this.updateOnlyNode(this.nodeData);
     }
 
