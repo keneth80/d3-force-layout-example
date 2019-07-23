@@ -7,6 +7,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const helpers = require('./helpers');
  
 module.exports = {
+    entry: ['@babel/polyfill', './src'],
     resolve: {
         extensions: ['.js', '.ts']
     },

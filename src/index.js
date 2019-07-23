@@ -1,5 +1,5 @@
 import './style.css';
-import 'ie-array-find-polyfill';
+import 'whatwg-fetch';
 
 import { excute } from './component/d3-force-layout-dag-component';
 
