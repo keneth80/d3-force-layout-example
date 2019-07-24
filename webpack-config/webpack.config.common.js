@@ -5,13 +5,11 @@ const BundleAnalyzerPlugin   = require('webpack-bundle-analyzer').BundleAnalyzer
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const helpers = require('./helpers');
- 
+
+console.log('src : ', helpers.root());
+
 module.exports = {
     entry: ['@babel/polyfill', './src'],
-    output: {
-        filename: '[name].[hash].js',
-        chunkFilename: '[name].[hash].js'
-    },
     resolve: {
         extensions: ['.js', '.ts']
     },
@@ -56,8 +54,9 @@ module.exports = {
     },
     plugins: [
         new CleanWebpackPlugin({ 
-            root: helpers.root(), 
-            verbose: true 
+            root: helpers.root('dist'), 
+            verbose: true,
+            dry: false
         }),
 
         new HtmlWebPackPlugin({
