@@ -780,7 +780,15 @@ export class D3ForceLayoutDragComponent {
         //         return d.id;
         //     });
 
-        this.node.append('text')
+        this.node.selectAll('text')
+            .data((d) => {
+                return [d];
+            })
+            .join(
+                (enter) => enter.append('text'),
+                (update) => update,
+                (exit) => exit.remove()
+            )
             .attr('dy', () => {
                 return 5;
             })

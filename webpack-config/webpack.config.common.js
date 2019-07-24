@@ -65,14 +65,14 @@ module.exports = {
                 include: [helpers.root('dist')]
             },
             after: {
-                test: [
-                    {
-                        folder: helpers.root('dist/component'),
-                        method: (filePath) => {
-                            return new RegExp(/\.map$/, 'm').test(filePath);
-                        }
-                    } 
-                ]
+                // test: [
+                //     {
+                //         folder: helpers.root('dist/component'),
+                //         method: (filePath) => {
+                //             return new RegExp(/\.map$/, 'm').test(filePath);
+                //         }
+                //     } 
+                // ]
             }
         }),
 
