@@ -122,6 +122,9 @@ export const excute = (doc, isMock = false) => {
         data.AmountPaid = parseInt(data.AmountPaid) || 0;
         data.Balance = parseInt(data.Balance) || 0;
         data.id = index;
+        if (index === 0) {
+            data.target = 'Y';
+        }
         return data;
     }).then((mock) => {
         const linkData = [];
@@ -558,7 +561,15 @@ export class D3ForceLayoutDragComponent {
     }
 
     update(nodes, links) {
+        let isTarget = false;
         nodes.map((d, i) => {
+            if (isTarget === false && d.target === 'Y') {
+                isTarget = true;
+                d.fx = this.svgWidth / 2;
+                d.fy = this.svgHeight / 2;
+                d.fixed = true;
+            }
+
             if (!d.TransactionCount) {
                 d.TransactionCount = nodes.filter(item => item.OutAccountNumber === d.OutAccountNumber || item.InAccountNumber === d.OutAccountNumber).length;
             }
