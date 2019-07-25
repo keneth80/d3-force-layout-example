@@ -24,9 +24,6 @@ export const excute = (doc, isMock = false) => {
         data.AmountPaid = parseInt(data.AmountPaid) || 0;
         data.Balance = parseInt(data.Balance) || 0;
         data.id = index;
-        if (index === 0) {
-            data.target = 'Y';
-        }
         return data;
     }).then((mock) => {
         const linkData = [];
@@ -39,6 +36,10 @@ export const excute = (doc, isMock = false) => {
         // 맨 앞단은 컬럼명이 명시되어 있어 잘라낸다.
         originData = mock.slice(1);
         nodeData = originData.map((d, i) => {
+            if (i === 0) {
+                d.target = 'Y';
+                d.active = 'Y';
+            }
             let targetItem = originData.find(item => item.OutAccountNumber === d.InAccountNumber);
             if (targetItem) {
                 if (d.AmountDeposit > 0) {
@@ -693,8 +694,9 @@ export class D3ForceLayoutDragComponent {
             .style('stroke-width', 2)
             .style('fill', (d) => {
                 let color = '#68a1fc';
+                console.log('d : ', d);
                 if (d.active === 'Y') {
-                    color = '#021bfa';
+                    color = '#3e51fa';
                 }
                 return color;
             });
