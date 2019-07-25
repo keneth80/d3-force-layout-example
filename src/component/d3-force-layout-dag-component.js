@@ -715,6 +715,9 @@ export class D3ForceLayoutDragComponent {
             .style('font-size', 'small')
             .style('stroke', (d, i) => {
                 let color = '#000';
+                if (d.active === 'Y') {
+                    color = '#fff';
+                }
                 return color;
             })
             .text((d) => {
