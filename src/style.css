@@ -24,13 +24,13 @@ svg {
     stroke-width: 2px; 
 }
 
-.link.px8.in { 
+.link.px5.in { 
     stroke: #364af7;
     stroke-opacity: 1; 
     stroke-width: 8px; 
 }
 
-.link.px16.in { 
+.link.px10.in { 
     stroke: #364af7;
     stroke-opacity: 1; 
     stroke-width: 16px; 
@@ -42,13 +42,13 @@ svg {
     stroke-width: 2px; 
 }
 
-.link.px8.out { 
+.link.px5.out { 
     stroke: #f74a4a;
     stroke-opacity: 1; 
     stroke-width: 8px; 
 }
 
-.link.px16.out { 
+.link.px10.out { 
     stroke: #f74a4a;
     stroke-opacity: 1; 
     stroke-width: 16px; 

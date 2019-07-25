@@ -158,7 +158,7 @@ export class D3ForceLayoutDragComponent {
             }
         ];
 
-        // 거래총액 1억이상 > 1억미만 > 5천만원 미만
+        // 거래총액 1억이상 > 1억미만 >= 5천만원 미만
         this.transactionAmountData = [
             {
                 label: '거래총액 1억이상',
@@ -223,10 +223,10 @@ export class D3ForceLayoutDragComponent {
         defs.append('marker')
             .attr('id', 'arrowEnd-2')
             .attr('viewBox', '0 -5 10 10')
-            .attr('refX', 15)
-            .attr('refY', -1.5)
-            .attr('markerWidth', 3)
-            .attr('markerHeight', 3)
+            .attr('refX', 23)
+            .attr('refY', 0)
+            .attr('markerWidth', 8)
+            .attr('markerHeight', 8)
             .attr('orient', 'auto')
             .append('svg:path')
                 .attr('d', 'M0,-5L10,0L0,5')
@@ -236,24 +236,24 @@ export class D3ForceLayoutDragComponent {
         defs.append('marker')
             .attr('id', 'arrowStart-2')
             .attr('viewBox', '0 -5 10 10')
-            .attr('refX', -5)
+            .attr('refX', -14)
             .attr('refY', 0)
-            .attr('markerWidth', 3)
-            .attr('markerHeight', 3)    
+            .attr('markerWidth', 8)
+            .attr('markerHeight', 8)    
             .attr('orient', 'auto')
             .append('path')
             .attr('d', 'M0,0L10,-5L10,5')
                 .attr('fill', this.accountInOutData[1].color)
                 .style('stroke','none');
 
-        // stroke width: 8
+        // stroke width: 5
         defs.append('marker')
-            .attr('id', 'arrowEnd-8')
+            .attr('id', 'arrowEnd-5')
             .attr('viewBox', '0 -5 10 10')
-            .attr('refX', 16)
+            .attr('refX', 17)
             .attr('refY', 0)
-            .attr('markerWidth', 3)
-            .attr('markerHeight', 3)
+            .attr('markerWidth', 5)
+            .attr('markerHeight', 5)
             .attr('orient', 'auto')
             .append('svg:path')
                 .attr('d', 'M0,-5L10,0L0,5')
@@ -261,21 +261,21 @@ export class D3ForceLayoutDragComponent {
                 .style('stroke','none');
 
         defs.append('marker')
-            .attr('id', 'arrowStart-8')
+            .attr('id', 'arrowStart-5')
             .attr('viewBox', '0 -5 10 10')
-            .attr('refX', -6)
+            .attr('refX', -7)
             .attr('refY', 0)
-            .attr('markerWidth', 3)
-            .attr('markerHeight', 3)    
+            .attr('markerWidth', 5)
+            .attr('markerHeight', 5)    
             .attr('orient', 'auto')
             .append('path')
             .attr('d', 'M0,0L10,-5L10,5')
                 .attr('fill', this.accountInOutData[1].color)
                 .style('stroke','none');
 
-        // stroke width: 16
+        // stroke width: 10
         defs.append('marker')
-            .attr('id', 'arrowEnd-16')
+            .attr('id', 'arrowEnd-10')
             .attr('viewBox', '0 -5 10 10')
             .attr('refX', 15)
             .attr('refY', 0)
@@ -288,9 +288,9 @@ export class D3ForceLayoutDragComponent {
                 .style('stroke','none');
 
         defs.append('marker')
-            .attr('id', 'arrowStart-16')
+            .attr('id', 'arrowStart-10')
             .attr('viewBox', '0 -5 10 10')
-            .attr('refX', -1)
+            .attr('refX', -4)
             .attr('refY', 0)
             .attr('markerWidth', 3)
             .attr('markerHeight', 3)    
@@ -487,7 +487,7 @@ export class D3ForceLayoutDragComponent {
                 d.fixed = true;
             }
 
-            if (!d.TransactionCount) {
+            if (d.TransactionCount === undefined) {
                 d.TransactionCount = nodes.filter(item => item.OutAccountNumber === d.OutAccountNumber || item.InAccountNumber === d.OutAccountNumber).length;
             }
         });
@@ -497,15 +497,15 @@ export class D3ForceLayoutDragComponent {
             .data(links)
             .join(
                 (enter) => enter.append('line').attr('class', (d) => {
-                    const source = this.nodeData.find((item) => item.id === d.source);
+                    const source = this.nodeData.find((item) => item.id === d.source.id);
                     let returnValue = 2;
-                    // TODO: 5회이상 > 5회미만 > 1회
-                    if (source && source.TransactionCount > 5) {
-                        returnValue = 16;
-                    } else if (source && source.TransactionCount < 5) {
-                        returnValue = 8;
-                    } else if (source && source.TransactionCount === 1) {
+                    // TODO: 5회이상 >= 5회미만 > 1회
+                    if (source && source.TransactionCount === 1) {
                         returnValue = 2;
+                    } else if (source && source.TransactionCount < 5) {
+                        returnValue = 5;
+                    } else if (source && source.TransactionCount >= 5) {
+                        returnValue = 10;
                     }
                     let acountType = 'out';
                     if (d.type === '입금') {
@@ -514,15 +514,15 @@ export class D3ForceLayoutDragComponent {
                     return 'link' + ' px' + returnValue + ' ' + acountType;
                 }),
                 (update) => update.attr('class', (d) => {
-                    const source = this.nodeData.find((item) => item.id === d.source);
+                    const source = this.nodeData.find((item) => item.id === d.source.id);
                     let returnValue = 2;
-                    // TODO: 5회이상 > 5회미만 > 1회
-                    if (source && source.TransactionCount > 5) {
-                        returnValue = 16;
-                    } else if (source && source.TransactionCount < 5) {
-                        returnValue = 8;
-                    } else if (source && source.TransactionCount === 1) {
+                    // TODO: 5회이상 >= 5회미만 > 1회
+                    if (source && source.TransactionCount === 1) {
                         returnValue = 2;
+                    } else if (source && source.TransactionCount < 5) {
+                        returnValue = 5;
+                    } else if (source && source.TransactionCount >= 5) {
+                        returnValue = 10;
                     }
                     let acountType = 'out';
                     if (d.type === '입금') {
@@ -534,15 +534,15 @@ export class D3ForceLayoutDragComponent {
             )
             // .attr('marker-end','url(#arrowhead)')
             .attr('marker-start', (d) => {
-                const source = this.nodeData.find((item) => item.id === d.source);
+                const source = this.nodeData.find((item) => item.id === d.source.id);
                 let transactionCount = 2;
-                // TODO: 5회이상 > 5회미만 > 1회
-                if (source && source.TransactionCount > 5) {
-                    transactionCount = 16;
-                } else if (source && source.TransactionCount < 5) {
-                    transactionCount = 8;
-                } else if (source && source.TransactionCount === 1) {
+                // TODO: 5회이상 >= 5회미만 > 1회
+                if (source && source.TransactionCount === 1) {
                     transactionCount = 2;
+                } else if (source && source.TransactionCount < 5) {
+                    transactionCount = 5;
+                } else if (source && source.TransactionCount >= 5) {
+                    transactionCount = 10;
                 }
                 let returnValue = '';
                 if (d.type === '출금') {
@@ -551,15 +551,15 @@ export class D3ForceLayoutDragComponent {
                 return returnValue;
             })
             .attr('marker-end', (d) => {
-                const source = this.nodeData.find((item) => item.id === d.source);
+                const source = this.nodeData.find((item) => item.id === d.source.id);
                 let transactionCount = 2;
-                // TODO: 5회이상 > 5회미만 > 1회
-                if (source && source.TransactionCount > 5) {
-                    transactionCount = 16;
-                } else if (source && source.TransactionCount < 5) {
-                    transactionCount = 8;
-                } else if (source && source.TransactionCount === 1) {
+                // TODO: 5회이상 >= 5회미만 > 1회
+                if (source && source.TransactionCount === 1) {
                     transactionCount = 2;
+                } else if (source && source.TransactionCount < 5) {
+                    transactionCount = 5;
+                } else if (source && source.TransactionCount >= 5) {
+                    transactionCount = 10;
                 }
                 let returnValue = '';
                 if (d.type === '입금') {
@@ -572,16 +572,16 @@ export class D3ForceLayoutDragComponent {
                 return color;
             })
             .style('stroke-width', (d) => {
-                const source = this.nodeData.find((item) => item.id === d.source);
+                const source = this.nodeData.find((item) => item.id === d.source.id);
                 let returnValue = 2;
-                // TODO: 5회이상 > 5회미만 > 1회
-                if (source && source.TransactionCount > 5) {
-                    returnValue = 16;
-                } else if (source && source.TransactionCount < 5) {
-                    returnValue = 8;
-                } else if (source && source.TransactionCount === 1) {
+                // TODO: 5회이상 >= 5회미만 > 1회
+                if (source && source.TransactionCount === 1) {
                     returnValue = 2;
-                } 
+                } else if (source && source.TransactionCount < 5) {
+                    returnValue = 5;
+                } else if (source && source.TransactionCount >= 5) {
+                    returnValue = 10;
+                }
 
                 return returnValue;
             });
@@ -678,7 +678,7 @@ export class D3ForceLayoutDragComponent {
                 (exit) => exit.remove()
             )
             .attr('r', (d) => {
-                // TODO: 거래총액 1억이상 > 1억미만 > 5천만원 미만
+                // TODO: 거래총액 1억이상 > 1억미만 >= 5천만원 미만
                 let returnValue = radius;
                 const transactionAccount = parseInt(d.AmountPaid) + parseInt(d.AmountDeposit);
                 if (transactionAccount >= 100000000) {
