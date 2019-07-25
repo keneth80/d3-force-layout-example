@@ -694,7 +694,6 @@ export class D3ForceLayoutDragComponent {
             .style('stroke-width', 2)
             .style('fill', (d) => {
                 let color = '#68a1fc';
-                console.log('d : ', d);
                 if (d.active === 'Y') {
                     color = '#3e51fa';
                 }
