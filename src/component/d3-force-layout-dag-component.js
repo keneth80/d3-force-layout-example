@@ -12,107 +12,9 @@ import { debounceTime, map, buffer, delay, filter } from 'rxjs/operators';
 export const excute = (doc, isMock = false) => {
     let originData = [];
     if (!isMock) {
-        // select('#add_btn').on('click', () => {
-        //     doc.d3ForceLayoutDragComponent.addData([
-        //         {
-        //             AmountDeposit: 0,
-        //             AmountPaid: 5555038000,
-        //             Balance: 2498000,
-        //             Bank: '중소기업은행',
-        //             Briefs: '학원비',
-        //             CurrencySeparation: 'KRW',
-        //             FinancialInstitution: '중소기업은행',
-        //             ForeignCurrencyTransactionAmt: '0.00',
-        //             InAccountNumber: '23144551728222',
-        //             Name: '나나비',
-        //             NameNo: '8401271111222',
-        //             OutAccountNumber: '99988877744433',
-        //             ShopName: '애오개',
-        //             TransactionChannel: '대체',
-        //             TransactionCount: 27,
-        //             TransactionDate: '2/1/19',
-        //             TransactionMeans: '인터넷뱅킹',
-        //             TransactionTime: '16:41:13',
-        //             TransactionType: '입금',
-        //             id: 2,
-        //             index: 0
-        //             },
-        //             {
-        //             AmountDeposit: 0,
-        //             AmountPaid: 600000,
-        //             Balance: 3200999222,
-        //             Bank: '신한은행',
-        //             Briefs: '이전비',
-        //             CurrencySeparation: 'KRW',
-        //             FinancialInstitution: '한국은행',
-        //             ForeignCurrencyTransactionAmt: '0.00',
-        //             InAccountNumber: '99988877744433',
-        //             Name: '김사랑',
-        //             NameNo: '1231231231100',
-        //             OutAccountNumber: '772001119977220',
-        //             ShopName: '본점',
-        //             TransactionChannel: '대체',
-        //             TransactionCount: 1,
-        //             TransactionDate: '3/11/19',
-        //             TransactionMeans: '창구',
-        //             TransactionTime: '9:00:30',
-        //             TransactionType: '출금',
-        //             id: 3,
-        //             index: 1
-        //             }
-        //     ]);
-        // })
         const d3ForceLayoutDragComponent = new D3ForceLayoutDragComponent({selector: '#result', nodeData: [], linkData: []});
         if (doc) {
             doc.d3ForceLayoutDragComponent = d3ForceLayoutDragComponent;
-            // doc.d3ForceLayoutDragComponent.updateOnlyNode([
-            //     {
-            //         AmountDeposit: 0,
-            //         AmountPaid: 5555038000,
-            //         Balance: 2498000,
-            //         Bank: '중소기업은행',
-            //         Briefs: '학원비',
-            //         CurrencySeparation: 'KRW',
-            //         FinancialInstitution: '중소기업은행',
-            //         ForeignCurrencyTransactionAmt: '0.00',
-            //         InAccountNumber: '23144551728222',
-            //         Name: '홍길동',
-            //         NameNo: '8401271111222',
-            //         OutAccountNumber: '99988877744433',
-            //         ShopName: '애오개',
-            //         TransactionChannel: '대체',
-            //         TransactionCount: 27,
-            //         TransactionDate: '2/1/19',
-            //         TransactionMeans: '인터넷뱅킹',
-            //         TransactionTime: '16:41:13',
-            //         TransactionType: '입금',
-            //         id: 1,
-            //         index: 0
-            //         },
-            //         {
-            //         AmountDeposit: 0,
-            //         AmountPaid: 600000,
-            //         Balance: 3200999222,
-            //         Bank: '신한은행',
-            //         Briefs: '이전비',
-            //         CurrencySeparation: 'KRW',
-            //         FinancialInstitution: '한국은행',
-            //         ForeignCurrencyTransactionAmt: '0.00',
-            //         InAccountNumber: '99988877744433',
-            //         Name: '김사기',
-            //         NameNo: '1231231231100',
-            //         OutAccountNumber: '772001119977220',
-            //         ShopName: '본점',
-            //         TransactionChannel: '대체',
-            //         TransactionCount: 1,
-            //         TransactionDate: '3/11/19',
-            //         TransactionMeans: '창구',
-            //         TransactionTime: '9:00:30',
-            //         TransactionType: '출금',
-            //         id: 2,
-            //         index: 1
-            //         }
-            // ]);
         }
         return;
     }
@@ -426,22 +328,22 @@ export class D3ForceLayoutDragComponent {
         this.svgHeight = parseFloat(this.svg.style('height'));
 
         // force link setup
-        const forceLinkObj = forceLink().id((d) => {
-            return d.id;
-        }).distance(200).strength(1);
+        // const forceLinkObj = forceLink().id((d) => {
+        //     return d.id;
+        // }).distance(200).strength(1);
 
-        // force layout setup
-        this.simulation = forceSimulation()
-            .force('link', forceLinkObj)
-            .force('box', () => {
-                for (let i = 0, n = this.nodeData.length; i < n; ++i) {
-                    const curr_node = this.nodeData[i];
-                    curr_node.x = Math.max(radius, Math.min(this.svgWidth - radius, curr_node.x));
-                    curr_node.y = Math.max(radius, Math.min(this.svgHeight - radius, curr_node.y));
-                }
-            })
-            .force('charge', forceManyBody().strength(-200))
-            .force('center', forceCenter(this.svgWidth / 2, this.svgHeight / 2));
+        // // force layout setup
+        // this.simulation = forceSimulation()
+        //     .force('link', forceLinkObj)
+        //     .force('box', () => {
+        //         for (let i = 0, n = this.nodeData.length; i < n; ++i) {
+        //             const curr_node = this.nodeData[i];
+        //             curr_node.x = Math.max(radius, Math.min(this.svgWidth - radius, curr_node.x));
+        //             curr_node.y = Math.max(radius, Math.min(this.svgHeight - radius, curr_node.y));
+        //         }
+        //     })
+        //     .force('charge', forceManyBody().strength(-200))
+        //     .force('center', forceCenter(this.svgWidth / 2, this.svgHeight / 2));
 
         // zoom setup
         this.zoomObj = zoom().touchable(true) // touchable : mobile
@@ -480,7 +382,7 @@ export class D3ForceLayoutDragComponent {
     }
 
     draw() {
-        this.simulation.alphaTarget(0.3).restart();
+        // this.simulation.alphaTarget(0.3).restart();
         // this.simulation.stop();
         // while (this.simulation.alpha() > this.simulation.alphaMin()) {
         //     this.simulation.tick();
@@ -525,7 +427,7 @@ export class D3ForceLayoutDragComponent {
         // this.zoomTarget.remove();
         this.detailGroup.selectAll('*').remove();
         // this.zoomTarget = this.svg.append('g').attr('class', 'main-group');
-        this.simulation.alphaTarget(0.3).restart();
+        // this.simulation.alphaTarget(0.3).restart();
         setTimeout(() => {
             this.update(this.nodeData, this.linkData);
             this.svg.node().appendChild(this.detailGroup.node());
@@ -533,7 +435,7 @@ export class D3ForceLayoutDragComponent {
     }
 
     addData(nodes) {
-        this.simulation.alphaTarget(0.3).restart();
+        // this.simulation.alphaTarget(0.3).restart();
         this.nodeData = this.nodeData.concat(nodes);
         this.updateOnlyNode(this.nodeData);
     }
@@ -561,6 +463,20 @@ export class D3ForceLayoutDragComponent {
     }
 
     update(nodes, links) {
+        const forceLinkObj = forceLink(links).id((d) => {
+            return d.id;
+        }).distance(200).strength(1);
+
+        this.simulation = forceSimulation(nodes)
+            .force('link', forceLinkObj)
+            .force('charge', forceManyBody().strength(-200))
+            .force('center', forceCenter(this.svgWidth / 2, this.svgHeight / 2));
+
+        this.simulation.stop();
+        while (this.simulation.alpha() > this.simulation.alphaMin()) {
+            this.simulation.tick();
+        }
+
         let isTarget = false;
         nodes.map((d, i) => {
             if (isTarget === false && d.target === 'Y') {
@@ -667,13 +583,7 @@ export class D3ForceLayoutDragComponent {
                 } 
 
                 return returnValue;
-            })
-            ;
-            
-        // this.link.append('title')
-        //     .text((d) => {
-        //         return d.type;
-        //     });
+            });
 
         this.edgepaths = this.zoomTarget.selectAll('.edgepath')
             .data(links)
@@ -781,15 +691,13 @@ export class D3ForceLayoutDragComponent {
             })
             .style('stroke', '#fff')
             .style('stroke-width', 2)
-            .style('fill', (d, i) => {
+            .style('fill', (d) => {
                 let color = '#68a1fc';
+                if (d.active === 'Y') {
+                    color = '#021bfa';
+                }
                 return color;
             });
-
-        // this.node.append('title')
-        //     .text((d) => {
-        //         return d.id;
-        //     });
 
         this.node.selectAll('text')
             .data((d) => {
@@ -816,14 +724,16 @@ export class D3ForceLayoutDragComponent {
                 return (textWidth/2)*-1;
             });
 
-        this.simulation
-            .nodes(nodes)
-            .on('tick', () => {
-                this.ticked();
-            });
+        // this.simulation
+        //     .nodes(nodes)
+        //     .on('tick', () => {
+        //         this.ticked();
+        //     });
+        
+        // this.simulation.force('link')
+        //     .links(links);
 
-        this.simulation.force('link')
-            .links(links);
+        this.ticked();
 
          // 1회용 observable
          const initialExcuteObserv = Observable.create((observer) => {
@@ -834,7 +744,7 @@ export class D3ForceLayoutDragComponent {
         initialExcuteObserv.pipe(
             delay(2000)
         ).subscribe(() => {
-            this.simulation.stop();
+            // this.simulation.stop();
         });
     }
 
